@@ -1,4 +1,4 @@
-# 🛁 Abosefen & Tamav Irini | Sanitaryware Store Web App
+# 🛁 Abosefen & TamaveIrini | Sanitaryware Store Web App
 
 A modern, responsive web application for managing and showcasing products in a local sanitaryware store based in Egypt.  
 Built with **React + Tailwind CSS + Vite** to provide a clean UI and efficient performance on all screen sizes.
