@@ -1,15 +1,20 @@
-import Header from './components/Header';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Header from './components/header';
+import Categories from './pages/Categories';
 import Products from './pages/Products';
 
 function App() {
   return (
-    <div className="bg-light min-h-screen text-dark">
+    <Router>
       <Header />
-      <main className="p-4">
-        <Products />
-      </main>
-    </div>
+      <Routes>
+        <Route path="/" element={<Categories />} />
+        <Route path="/products/:category" element={<Products />} />
+      </Routes>
+    </Router>
   );
 }
 
 export default App;
+
