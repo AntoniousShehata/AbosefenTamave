@@ -7,15 +7,17 @@ Built with **React + Tailwind CSS + Vite** to provide a clean UI and efficient p
 
 ## 🎯 Features
 
-- RTL (Right-to-Left) Arabic interface
-- Product catalog with name, image, and price
-- Fully responsive layout (mobile/tablet/desktop)
-- Modular code structure using React components
-- Ready for future enhancements:
-  - Product details modal
-  - Add to cart functionality
+
+- 🧭 **Sticky Responsive Header** with logo, navigation links, and animated mobile menu (burger → X)
+- 🖼️ Product catalog with image, name, and price
+- 🛒 **Add to Cart** button on each product
+- ➕➖ **Increase/Decrease Quantity** per item in cart
+- 🧠 Global **Cart State Management** using `useContext` + `useReducer`
+- ⚙️ Clean and responsive UI with TailwindCSS
+- 🔒 Prepared for:
+  - Product details modal/page
   - Admin dashboard
-  - SQL database integration
+  - SQL database integration (structure already available)
 
 ---
 
@@ -26,6 +28,7 @@ Built with **React + Tailwind CSS + Vite** to provide a clean UI and efficient p
 | React         | Frontend UI framework            |
 | Tailwind CSS  | Utility-first CSS styling        |
 | Vite          | Lightning-fast development setup |
+| Context + Reducer | Global state for shopping cart |
 
 ---
 
@@ -39,25 +42,28 @@ cd AbosefenTamave
 npm install
 npm run dev
 ```
-
-## 🚀 Then open your browser at:
-
-
+---
+Then open your browser at:
 http://localhost:5173
 
 ---
-
 ## 📁 Project Structure
 
-```bash
 src/
-├── components/    # Reusable UI components (Header, Footer, etc.)
-├── pages/         # Main pages (Home, Products, etc.)
-├── pictures/      # Local image assets for products
-├── App.jsx        # Root component
-├── index.css      # Tailwind CSS setup
-```
 
+├── components/        # Reusable UI components (Header, Cart, etc.)
+
+├── pages/             # Main pages (Home, Products)
+
+├── pictures/          # Product images and logo
+
+├── App.jsx            # Root application component
+
+├── index.css          # Tailwind CSS styles
+
+├── main.jsx           # React app entry point with CartProvider
+
+---
 ## 👨‍💻 Developer
 
 Name: Antonious Shehata
@@ -65,3 +71,5 @@ Name: Antonious Shehata
 LinkedIn: linkedin.com/in/antoniousshehata
 
 Portfolio: antoniousshehata.github.io
+
+---
