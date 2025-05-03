@@ -13,6 +13,7 @@ function App() {
         <Route path="/products/:category" element={<Products />} />
       </Routes>
     </Router>
+    
   );
 }
 
