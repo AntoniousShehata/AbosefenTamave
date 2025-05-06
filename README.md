@@ -71,5 +71,4 @@ Name: Antonious Shehata
 LinkedIn: linkedin.com/in/antoniousshehata
 
 Portfolio: antoniousshehata.github.io
-
 ---
