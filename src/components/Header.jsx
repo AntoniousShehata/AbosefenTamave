@@ -20,7 +20,7 @@ function Header() {
         {/* Desktop Menu */}
         <nav className="hidden md:flex gap-6 text-lg">
           <Link to="/" className="hover:text-secondary transition">Home</Link>
-          <Link to="/Categories" className="hover:text-secondary transition">Products</Link>
+          <Link to="/products" className="hover:text-secondary transition">Products</Link>
           <Link to="/contact" className="hover:text-secondary transition">Contact</Link>
         </nav>
 
