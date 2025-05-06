@@ -17,14 +17,12 @@ function Header() {
           <span>Abosefen & Tamav Irini</span>
         </div>
 
-        {/* Desktop Menu */}
         <nav className="hidden md:flex gap-6 text-lg">
           <Link to="/" className="hover:text-secondary transition">Home</Link>
           <Link to="/products" className="hover:text-secondary transition">Products</Link>
           <Link to="/contact" className="hover:text-secondary transition">Contact</Link>
         </nav>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -46,7 +44,6 @@ function Header() {
         </div>
       </div>
 
-      {/* Mobile Menu Links */}
       {isOpen && (
         <div className="md:hidden px-4 pb-4">
           <Link to="/" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Home</Link>
