@@ -39,7 +39,7 @@ const categories = [
   },
 ];
 
-function Categories() {
+function ProductsPage() {
   const navigate = useNavigate();
 
   return (
@@ -67,4 +67,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default ProductsPage;
