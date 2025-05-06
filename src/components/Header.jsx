@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom'; // ✅ ضروري لـ navigation داخل React
+import { Link } from 'react-router-dom';
 import logo from '../pictures/logo.jpg';
 
 function Header() {
@@ -50,7 +50,7 @@ function Header() {
       {isOpen && (
         <div className="md:hidden px-4 pb-4">
           <Link to="/" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Home</Link>
-          <Link to="/products/Bathroom%20Sets" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Products</Link>
+          <Link to="/products" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Products</Link>
           <Link to="/contact" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Contact</Link>
         </div>
       )}
