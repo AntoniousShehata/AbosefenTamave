@@ -14,7 +14,7 @@ function Header() {
             alt="Logo"
             className="w-10 h-10 object-contain rounded-full"
           />
-          <span>Abosefen & Tamav Irini</span>
+          <span>Abosefen & TamaveIrini</span>
         </div>
 
         <nav className="hidden md:flex gap-6 text-lg">
