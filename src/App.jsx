@@ -6,6 +6,8 @@ import Products from './pages/Products';
 import Home from './pages/Home';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart'; 
+import Checkout from './pages/Checkout';
+
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
         <Route path="/products/:category" element={<Products />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
     </Router>
   );

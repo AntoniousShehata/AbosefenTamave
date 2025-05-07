@@ -1,5 +1,6 @@
 import React from 'react';
 import { useCart } from '../context/CartContext';
+import { Link } from 'react-router-dom';
 
 function Cart() {
   const { cart, dispatch } = useCart();
@@ -58,9 +59,13 @@ function Cart() {
         <p className="text-xl font-bold text-dark">
           Total: <span className="text-primary">EGP {totalPrice.toFixed(2)}</span>
         </p>
-        <button className="mt-4 bg-primary text-white px-6 py-2 rounded hover:bg-secondary transition">
-          Checkout
-        </button>
+
+        <Link
+          to="/checkout"
+          className="inline-block mt-4 bg-primary text-white px-6 py-2 rounded hover:bg-secondary transition"
+        >
+          Proceed to Checkout
+        </Link>
       </div>
     </div>
   );
