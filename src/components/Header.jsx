@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import logo from '../pictures/logo.jpg';
+import { useCart } from '../context/CartContext';
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
+  const { cart } = useCart(); 
 
   return (
     <header className="bg-primary text-white shadow-md sticky top-0 z-50">
@@ -21,6 +23,14 @@ function Header() {
           <Link to="/" className="hover:text-secondary transition">Home</Link>
           <Link to="/products" className="hover:text-secondary transition">Products</Link>
           <Link to="/contact" className="hover:text-secondary transition">Contact</Link>
+          <Link to="/cart" className="relative hover:text-secondary transition">
+            🛒 Cart
+            {cart.length > 0 && (
+              <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </Link>
         </nav>
 
         <div className="md:hidden">
@@ -49,6 +59,14 @@ function Header() {
           <Link to="/" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Home</Link>
           <Link to="/products" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Products</Link>
           <Link to="/contact" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">Contact</Link>
+          <Link to="/cart" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">
+            🛒 Cart
+            {cart.length > 0 && (
+              <span className="ml-2 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                {cart.length}
+              </span>
+            )}
+          </Link>
         </div>
       )}
     </header>
