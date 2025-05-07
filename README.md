@@ -18,7 +18,14 @@ Built with **React + Tailwind CSS + Vite** to provide a clean UI and efficient p
   - Product details modal/page
   - Admin dashboard
   - SQL database integration (structure already available)
-
+- 🧭 Home page with welcome message + featured categories
+- 🗂️ Category-based product navigation (Categories → Products)
+- 🌍 Contact page with:
+  - 📬 Contact form via EmailJS (auto-reply enabled)
+  - 📍 Store info: address, phone, email, working hours
+  - 🗺️ Google Maps embed + clickable to open in Google Maps
+  - 🖼️ Storefront image with responsive layout
+- 💌 Styled HTML auto-reply with banner and personalized message
 ---
 
 ## 🧰 Tech Stack
@@ -51,9 +58,9 @@ http://localhost:5173
 
 src/
 
-├── components/        # Reusable UI components (Header, Cart, etc.)
+├── components/        # Reusable UI components (Header)
 
-├── pages/             # Main pages (Home, Products)
+├── pages/             # Main pages (Contact, Home, Products, ProductsPage)
 
 ├── pictures/          # Product images and logo
 
@@ -64,11 +71,21 @@ src/
 ├── main.jsx           # React app entry point with CartProvider
 
 ---
+## 📡 Deployment
+
+The app is live and publicly accessible via **Vercel** at:
+
+https://abosefen.vercel.app/
+
+> Hosted using Vercel for fast global performance and free deployment.
+
+---
 ## 👨‍💻 Developer
 
-Name: Antonious Shehata
 
-LinkedIn: linkedin.com/in/antoniousshehata
+## Name: Antonious Shehata
 
-Portfolio: antoniousshehata.github.io
+🔗 [LinkedIn Profile](https://linkedin.com/in/antoniousshehata)  
+🌐 [Portfolio Website](https://antoniousshehata.github.io)
+
 ---
