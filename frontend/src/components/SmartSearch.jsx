@@ -168,9 +168,15 @@ function SmartSearch({ onSearchResults, className = '' }) {
 
   // Handle suggestion click
   const handleSuggestionClick = (suggestion) => {
-    setQuery(suggestion.suggestion || suggestion.text);
+    const searchTerm = suggestion.suggestion || suggestion.text;
+    setQuery(searchTerm);
     setShowSuggestions(false);
-    handleSearch(suggestion.suggestion || suggestion.text);
+    setActiveIndex(-1);
+    
+    // Ensure we have a valid search term
+    if (searchTerm && searchTerm.trim()) {
+      handleSearch(searchTerm.trim());
+    }
   };
 
   // Handle focus
@@ -228,7 +234,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
       {showSuggestions && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50"
+          className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-xl mt-1 max-h-96 overflow-y-auto z-50"
         >
           {/* Autocomplete suggestions */}
           {suggestions?.length > 0 && (
@@ -238,15 +244,15 @@ function SmartSearch({ onSearchResults, className = '' }) {
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className={`w-full px-4 py-2 text-left hover:bg-gray-50 transition ${
-                    activeIndex === index ? 'bg-gray-100' : ''
+                  className={`w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out ${
+                    activeIndex === index ? 'bg-blue-100' : ''
                   }`}
                 >
                   <div className="flex items-center">
                     <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <span className="text-gray-900">{suggestion.suggestion || suggestion.text}</span>
+                    <span className="text-black font-medium">{suggestion.suggestion || suggestion.text}</span>
                     {suggestion.type === 'category' && (
                       <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Category</span>
                     )}
@@ -264,13 +270,13 @@ function SmartSearch({ onSearchResults, className = '' }) {
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: search })}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 transition"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out"
                 >
                   <div className="flex items-center">
                     <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-gray-900">{search}</span>
+                    <span className="text-black font-medium">{search}</span>
                   </div>
                 </button>
               ))}
@@ -285,14 +291,14 @@ function SmartSearch({ onSearchResults, className = '' }) {
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: trend.term })}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 transition"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
-                      <span className="text-gray-900">{trend.term}</span>
+                      <span className="text-black font-medium">{trend.term}</span>
                     </div>
                     <span className="text-xs text-gray-500">{trend.count} products</span>
                   </div>
