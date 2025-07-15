@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
 import emailjs from '@emailjs/browser';
-import shopImage from '../pictures/shop.jpg';
 
 function Contact() {
   const form = useRef();
@@ -37,82 +36,92 @@ function Contact() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-8">
-        <form ref={form} onSubmit={sendEmail} className="space-y-4">
-          <input
-            type="text"
-            name="name"
-            placeholder="Your Name"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          />
-          <input
-            type="text"
-            name="title"
-            placeholder="Your Request Title"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          />
-          <input
-            type="email"
-            name="user_email"
-            placeholder="you@example.com"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          />
-          <textarea
-            name="message"
-            rows="5"
-            placeholder="Your message"
-            required
-            className="w-full px-4 py-2 border border-gray-300 rounded"
-          ></textarea>
-          <button
-            type="submit"
-            className="bg-primary text-white px-6 py-2 rounded hover:bg-secondary transition w-full"
-          >
-            Send Message
-          </button>
-        </form>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        {/* Contact Form */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h3 className="text-xl font-semibold text-secondary mb-4">Get in Touch</h3>
+          <form ref={form} onSubmit={sendEmail} className="space-y-4">
+            <input
+              type="text"
+              name="user_name"
+              placeholder="Your Name"
+              className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent"
+              required
+            />
+            <input
+              type="email"
+              name="user_email"
+              placeholder="Your Email"
+              className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent"
+              required
+            />
+            <textarea
+              name="message"
+              placeholder="Your Message"
+              rows="5"
+              className="w-full p-3 border border-gray-300 rounded focus:ring-2 focus:ring-primary focus:border-transparent"
+              required
+            ></textarea>
+            <button
+              type="submit"
+              className="w-full bg-primary text-white py-3 px-4 rounded hover:bg-secondary transition font-semibold"
+            >
+              Send Message
+            </button>
+          </form>
+        </div>
 
-        <div className="grid md:grid-cols-2 gap-8 items-start">
-   
-        <div className="space-y-4 text-gray-700">
-            <h3 className="text-xl font-semibold text-secondary">📍 Address:</h3>
-            <p>10 Eldaher Street, Elfagala, Cairo, Egypt</p>
+        {/* Contact Information */}
+        <div className="space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold text-secondary">📍 Visit our store:</h3>
+            <p className="text-sm">
+              10 شارع الظاهر، وسط البلد، القاهرة، مصر
+              <br />
+              10 Eldaher Street, Downtown, Cairo, Egypt
+            </p>
+          </div>
 
-            <h3 className="text-xl font-semibold text-secondary">📞 Phone:</h3>
-            <p><a href="tel:+201029552085" className="text-blue-600">+20 102 955 2085</a></p>
-            <p><a href="tel:+201226766750" className="text-blue-600">+20 122 676 6750</a></p>
+          <div>
+            <h3 className="text-xl font-semibold text-secondary">📞 Call us:</h3>
+            <div className="text-sm space-y-1">
+              <p>+20227868761</p>
+              <p>+201029552085</p>
+              <p>+201226766750</p>
+            </div>
+          </div>
 
-            <h3 className="text-xl font-semibold text-secondary">📧 Email:</h3>
-            <p><a href="mailto:maherfouadshehata@gmail.com" className="text-blue-600">maherfouadshehata@gmail.com</a></p>
+          <div>
+            <h3 className="text-xl font-semibold text-secondary">✉️ Email us:</h3>
+            <p className="text-sm">maherfouadshehata@gmail.com</p>
+          </div>
 
+          <div>
             <h3 className="text-xl font-semibold text-secondary">🕒 Working Hours:</h3>
             <ul className="list-disc list-inside text-sm">
-            <li>Monday to Saturday: 9 AM – 9 PM</li>
-            <li>Sunday: Closed</li>
+              <li>Monday to Saturday: 9 AM – 9 PM</li>
+              <li>Sunday: Closed</li>
             </ul>
-        </div>
+          </div>
 
-        <div>
+          <div>
             <img
-            src={shopImage}
-            alt="Abosefen Storefront"
-            className="w-full object-contain max-h-[400px] rounded-lg shadow-md"
+              src="/images/shop.jpg"
+              alt="Abosefen & TamaveIrini Storefront"
+              className="w-full object-contain max-h-[400px] rounded-lg shadow-md"
             />
-        </div>
+          </div>
         </div>
       </div>
 
       <div className="mt-10">
         <h3 className="text-xl font-semibold text-secondary mb-2">🗺️ Find us on the map</h3>
         <a
-            href="https://maps.app.goo.gl/eBJY31BSuHipwYXf8"
-            target="_blank"
-            rel="noopener noreferrer"
+          href="https://maps.app.goo.gl/eBJY31BSuHipwYXf8"
+          target="_blank"
+          rel="noopener noreferrer"
         >
-            <iframe
+          <iframe
             title="Store Location"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3453.1693508478666!2d31.254679524769365!3d30.060679817801887!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14584182eab8962d%3A0xd79f62d7e61502d0!2z2KfYqNmI2LPZitmB2YrZhiDZiNiq2YXYp9mBINin2YrYsdmK2YbZiSDZhNmE2KfYr9mI2KfYqiDYp9mE2LXYrdmK2KkgLUFib3NlZmVuICYgVGFtYXZlaXJpbmk!5e0!3m2!1sar!2sde!4v1746560127671!5m2!1sar!2sde"
             width="100%"
@@ -121,11 +130,9 @@ function Contact() {
             allowFullScreen=""
             loading="lazy"
             referrerPolicy="no-referrer-when-downgrade"
-            ></iframe>
+          ></iframe>
         </a>
-        </div>
-
-
+      </div>
     </div>
   );
 }
