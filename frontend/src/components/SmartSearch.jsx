@@ -208,7 +208,8 @@ function SmartSearch({ onSearchResults, className = '' }) {
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder="Search products..."
-          className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          className="w-full px-4 py-2 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent text-gray-800 font-medium bg-white placeholder-gray-400"
+          style={{color: '#1f2937', backgroundColor: '#ffffff'}}
         />
         
         {/* Search Button */}
@@ -234,25 +235,26 @@ function SmartSearch({ onSearchResults, className = '' }) {
       {showSuggestions && (
         <div
           ref={suggestionsRef}
-          className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-xl mt-1 max-h-96 overflow-y-auto z-50"
+          className="absolute top-full left-0 right-0 bg-white border-2 border-gray-300 rounded-lg shadow-2xl mt-1 max-h-96 overflow-y-auto z-50"
         >
           {/* Autocomplete suggestions */}
           {suggestions?.length > 0 && (
             <div className="border-b border-gray-100">
-              <div className="px-4 py-2 text-sm font-medium text-gray-500">Suggestions</div>
+              <div className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-50">Suggestions</div>
               {(suggestions || []).map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className={`w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out ${
-                    activeIndex === index ? 'bg-blue-100' : ''
+                  className={`w-full px-4 py-3 text-left hover:bg-blue-50 hover:shadow-sm transition duration-150 ease-in-out border-b border-gray-200 last:border-b-0 ${
+                    activeIndex === index ? 'bg-blue-100' : 'bg-gray-50'
                   }`}
+                  style={{backgroundColor: activeIndex === index ? '#dbeafe' : '#ffffff'}}
                 >
                   <div className="flex items-center">
                     <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
-                    <span className="text-black font-medium">{suggestion.suggestion || suggestion.text}</span>
+                    <span className="text-gray-800 font-bold text-base leading-tight" style={{textShadow: '0 1px 2px rgba(0,0,0,0.1)'}}>{suggestion.suggestion || suggestion.text}</span>
                     {suggestion.type === 'category' && (
                       <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Category</span>
                     )}
@@ -265,18 +267,19 @@ function SmartSearch({ onSearchResults, className = '' }) {
           {/* Recent searches */}
           {recentSearches?.length > 0 && (query?.length ?? 0) < 2 && (
             <div className="border-b border-gray-100">
-              <div className="px-4 py-2 text-sm font-medium text-gray-500">Recent Searches</div>
+              <div className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-50">Recent Searches</div>
               {(recentSearches || []).map((search, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: search })}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 hover:shadow-sm transition duration-150 ease-in-out border-b border-gray-200 last:border-b-0"
+                  style={{backgroundColor: '#ffffff'}}
                 >
                   <div className="flex items-center">
                     <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <span className="text-black font-medium">{search}</span>
+                    <span className="text-gray-800 font-bold text-base leading-tight" style={{textShadow: '0 1px 2px rgba(0,0,0,0.1)'}}>{search}</span>
                   </div>
                 </button>
               ))}
@@ -286,19 +289,20 @@ function SmartSearch({ onSearchResults, className = '' }) {
           {/* Trending searches */}
           {trendingSearches?.length > 0 && (query?.length ?? 0) < 2 && (
             <div>
-              <div className="px-4 py-2 text-sm font-medium text-gray-500">Trending</div>
+              <div className="px-4 py-2 text-sm font-bold text-gray-700 bg-gray-50">Trending</div>
               {(trendingSearches || []).map((trend, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: trend.term })}
-                  className="w-full px-4 py-3 text-left hover:bg-blue-50 transition duration-150 ease-in-out"
+                  className="w-full px-4 py-3 text-left hover:bg-blue-50 hover:shadow-sm transition duration-150 ease-in-out border-b border-gray-200 last:border-b-0"
+                  style={{backgroundColor: '#ffffff'}}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <svg className="h-4 w-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                       </svg>
-                      <span className="text-black font-medium">{trend.term}</span>
+                      <span className="text-gray-800 font-bold text-base leading-tight" style={{textShadow: '0 1px 2px rgba(0,0,0,0.1)'}}>{trend.term}</span>
                     </div>
                     <span className="text-xs text-gray-500">{trend.count} products</span>
                   </div>
