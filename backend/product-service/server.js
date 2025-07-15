@@ -1,7 +1,7 @@
 const express = require('express');
 const { MongoClient } = require('mongodb');
 const cors = require('cors');
-const SmartSearchService = require('./services/smartSearchService');
+// const SmartSearchService = require('./services/smartSearchService'); // Not needed anymore
 const RecommendationService = require('./services/recommendationService');
 
 const app = express();
@@ -16,7 +16,7 @@ const MONGO_URI = process.env.MONGODB_URI || 'mongodb://admin:AbosefenMongo2024!
 const DB_NAME = 'abosefen-catalog';
 
 let db;
-let smartSearchService;
+// let smartSearchService; // Not needed anymore
 let recommendationService;
 
 // Sample categories and products for fallback
@@ -326,12 +326,12 @@ async function startServer() {
     await initializeDatabaseWithSampleData();
     
     // Initialize smart search service
-    try {
-      smartSearchService = new SmartSearchService(db);
-      console.log('🔍 Smart search service initialized');
-    } catch (error) {
-      console.error('⚠️ Smart search service initialization failed:', error.message);
-    }
+    // try {
+    //   smartSearchService = new SmartSearchService(db);
+    //   console.log('🔍 Smart search service initialized');
+    // } catch (error) {
+    //   console.error('⚠️ Smart search service initialization failed:', error.message);
+    // }
     
     // Initialize recommendation service
     try {
@@ -784,10 +784,10 @@ app.get('/products/search', async (req, res) => {
   }
 });
 
-// 🎯 Smart search with auto-complete and typo correction
+// 🎯 Smart search - working version based on search endpoint
 app.get('/products/smart-search', async (req, res) => {
   try {
-    const { q, category, sortBy = 'relevance', limit = 20, page = 1, includeSuggestions } = req.query;
+    const { q, category, sortBy = 'relevance', limit = 20, page = 1 } = req.query;
     
     if (!q || q.trim() === '') {
       return res.status(400).json({
@@ -806,8 +806,7 @@ app.get('/products/smart-search', async (req, res) => {
       isActive: true,
       $or: [
         { 'name.en': { $regex: searchTerm, $options: 'i' } },
-        { 'description.en': { $regex: searchTerm, $options: 'i' } },
-        { 'tags': { $in: [new RegExp(searchTerm, 'i')] } }
+        { 'description.en': { $regex: searchTerm, $options: 'i' } }
       ]
     };
 
@@ -846,35 +845,11 @@ app.get('/products/smart-search', async (req, res) => {
       db.collection('products').countDocuments(searchFilter)
     ]);
 
-    // Get suggestions if requested
-    let suggestions = [];
-    if (includeSuggestions === 'true') {
-      suggestions = await db.collection('products').aggregate([
-        {
-          $match: {
-            isActive: true,
-            $or: [
-              { 'name.en': { $regex: searchTerm, $options: 'i' } },
-              { 'description.en': { $regex: searchTerm, $options: 'i' } }
-            ]
-          }
-        },
-        {
-          $project: {
-            text: '$name.en',
-            type: 'product'
-          }
-        },
-        { $limit: 5 }
-      ]).toArray();
-    }
-
     res.json({
       success: true,
       results: products,
       totalFound: totalCount,
-      suggestions: suggestions,
-      query: q
+      suggestions: []
     });
   } catch (error) {
     console.error('❌ Error in smart search:', error);
@@ -951,23 +926,30 @@ app.get('/products/autocomplete', async (req, res) => {
   }
 });
 
-// 📈 Get trending searches
+// 📈 Get trending searches - simplified version
 app.get('/products/trending', async (req, res) => {
   try {
     const { limit = 6 } = req.query;
     
-    if (!smartSearchService) {
-      return res.status(503).json({ 
-        success: false, 
-        error: 'Search service not available' 
-      });
-    }
-
-    const trendingSearches = await smartSearchService.getTrendingSearches(parseInt(limit));
+    // For now, return highest rated products as trending
+    const trendingProducts = await db.collection('products')
+      .find({ 
+        isActive: true,
+        'inventory.inStock': true 
+      })
+      .sort({ 'rating.average': -1, 'rating.count': -1 })
+      .limit(parseInt(limit))
+      .toArray();
+    
+    // Convert to search terms format for frontend compatibility
+    const trending = trendingProducts.map(product => ({
+      term: product.name.en,
+      count: product.rating.count || 0
+    }));
     
     res.json({
       success: true,
-      trending: trendingSearches
+      trending: trending
     });
   } catch (error) {
     console.error('❌ Error fetching trending searches:', error);
