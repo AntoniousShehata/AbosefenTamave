@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import Toast from '../components/Toast';
+import { useToast } from '../components/Toast';
 import axios from 'axios';
 
 function Products() {
   const { category } = useParams();
-  const { dispatch } = useCart();
+  const { addItem } = useCart();
+  const { showSuccess, showError } = useToast();
   const [products, setProducts] = useState([]);
-  const [toastMsg, setToastMsg] = useState('');
 
   // Get products from API
   useEffect(() => {
@@ -48,9 +48,39 @@ function Products() {
     return product.categoryId?.name?.en || product.CategoryName || '';
   };
 
+  // Helper function to handle add to cart
+  const handleAddToCart = (product) => {
+    try {
+      if (!product.inventory?.inStock) {
+        showError('Product is out of stock');
+        return;
+      }
+
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        slug: product.slug,
+        pricing: {
+          salePrice: product.pricing?.salePrice || product.pricing?.originalPrice,
+          originalPrice: product.pricing?.originalPrice,
+          currency: product.pricing?.currency || 'EGP'
+        },
+        images: product.images,
+        inventory: product.inventory,
+        sku: product.sku
+      };
+
+      addItem(cartItem, 1);
+      showSuccess(`${product.name?.en || 'Product'} added to cart!`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showError('Failed to add product to cart');
+    }
+  };
+
   return (
     <>
-      {toastMsg && <Toast message={toastMsg} />}
+      {/* toastMsg && <Toast message={toastMsg} /> */}
       <div className="p-6">
         <h2 className="text-2xl font-bold mb-6 text-primary">
           Products in: {category}
@@ -90,18 +120,9 @@ function Products() {
                   </div>
                   <div className="flex flex-col gap-2 mt-4">
                     <button
-                      onClick={() => {
-                        dispatch({ 
-                          type: 'ADD', 
-                          payload: {
-                            id: product._id || product.id,
-                            name: getProductName(product),
-                            price: `EGP ${getProductPrice(product)}`,
-                            image: getProductImage(product)
-                          }
-                        });
-                        setToastMsg(`${getProductName(product)} added to cart!`);
-                        setTimeout(() => setToastMsg(''), 3000);
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
                       }}
                       className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition"
                     >

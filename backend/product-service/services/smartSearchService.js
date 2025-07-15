@@ -64,7 +64,7 @@ class SmartSearchService {
     }
     
     // Tags
-    if (product.tags) {
+    if (product.tags && Array.isArray(product.tags)) {
       product.tags.forEach(tag => terms.push(tag.toLowerCase()));
     }
     

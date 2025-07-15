@@ -1064,7 +1064,7 @@ app.get('/products/:productId/similar', async (req, res) => {
       });
     }
     
-    const similarProducts = await recommendationService.getSimilarProducts(productId, parseInt(limit));
+    const similarProducts = await recommendationService.getRelatedProducts(productId, parseInt(limit));
     
     res.json({
       success: true,
