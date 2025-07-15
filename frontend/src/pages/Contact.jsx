@@ -204,13 +204,13 @@ function Contact() {
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
             <div className="relative">
               {/* Store Hero Image */}
-              <div className="relative h-96 overflow-hidden">
+              <div className="relative h-[500px] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
                 <img
                   src="/images/shop.jpg"
                   alt="Abosefen & TamaveIrini Storefront"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/30"></div>
                 
                 {/* Store Information Overlay */}
                 <div className="absolute inset-0 flex items-center">
