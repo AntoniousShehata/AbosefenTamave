@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import Toast from '../components/Toast';
+import { useToast } from '../components/Toast';
 import axios from 'axios';
 
 function CategoryProducts() {
   const { categoryId } = useParams();
   const navigate = useNavigate();
-  const { dispatch } = useCart();
+  const { addItem } = useCart();
+  const { showSuccess, showError } = useToast();
   
   const [category, setCategory] = useState(null);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [toastMsg, setToastMsg] = useState('');
   const [sortBy, setSortBy] = useState('featured');
 
   // Fetch category products
@@ -46,21 +46,32 @@ function CategoryProducts() {
   const handleAddToCart = (product, e) => {
     e.stopPropagation(); // Prevent navigation to product details
     
-    if (!product.inventory?.inStock) {
-      setToastMsg('❌ Product is out of stock');
-      return;
+    try {
+      if (!product.inventory?.inStock) {
+        showError('Product is out of stock');
+        return;
+      }
+
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        slug: product.slug,
+        pricing: {
+          salePrice: product.pricing?.salePrice || product.pricing?.originalPrice,
+          originalPrice: product.pricing?.originalPrice,
+          currency: product.pricing?.currency || 'EGP'
+        },
+        images: product.images,
+        inventory: product.inventory,
+        sku: product.sku
+      };
+
+      addItem(cartItem, 1);
+      showSuccess(`${product.name?.en || 'Product'} added to cart!`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showError('Failed to add product to cart');
     }
-
-    const cartItem = {
-      id: product._id,
-      name: product.name?.en || 'Unknown Product',
-      price: product.pricing?.salePrice || product.pricing?.originalPrice || 0,
-      image: getProductImage(product),
-      sku: product.sku
-    };
-
-    dispatch({ type: 'ADD', payload: cartItem });
-    setToastMsg(`✅ Added ${product.name?.en} to cart!`);
   };
 
   // Get product primary image
@@ -112,7 +123,6 @@ function CategoryProducts() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {toastMsg && <Toast message={toastMsg} onClose={() => setToastMsg('')} />}
       
       {/* Breadcrumb */}
       <nav className="mb-8 text-sm">

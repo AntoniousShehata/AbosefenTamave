@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import SmartSearch from '../components/SmartSearch';
-import Toast from '../components/Toast';
+import { useToast } from '../components/Toast';
 import axios from 'axios';
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { dispatch } = useCart();
+  const { addItem } = useCart();
+  const { showSuccess, showError } = useToast();
   
   const [results, setResults] = useState([]);
   const [suggestions, setSuggestions] = useState([]);
@@ -16,7 +16,6 @@ function SearchResults() {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [totalFound, setTotalFound] = useState(0);
   const [sortBy, setSortBy] = useState('relevance');
-  const [toastMsg, setToastMsg] = useState('');
   const [searchTime, setSearchTime] = useState(0);
 
   // Perform search when query changes
@@ -46,7 +45,7 @@ function SearchResults() {
       }
     } catch (error) {
       console.error('Error performing search:', error);
-      setToastMsg('❌ Search failed. Please try again.');
+      showError('Search failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -75,21 +74,32 @@ function SearchResults() {
   const handleAddToCart = (product, e) => {
     e.stopPropagation();
     
-    if (!product.inventory?.inStock) {
-      setToastMsg('❌ Product is out of stock');
-      return;
+    try {
+      if (!product.inventory?.inStock) {
+        showError('Product is out of stock');
+        return;
+      }
+
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        slug: product.slug,
+        pricing: {
+          salePrice: product.pricing?.salePrice || product.pricing?.originalPrice,
+          originalPrice: product.pricing?.originalPrice,
+          currency: product.pricing?.currency || 'EGP'
+        },
+        images: product.images,
+        inventory: product.inventory,
+        sku: product.sku
+      };
+
+      addItem(cartItem, 1);
+      showSuccess(`${product.name?.en || 'Product'} added to cart!`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showError('Failed to add product to cart');
     }
-
-    const cartItem = {
-      id: product._id,
-      name: product.name?.en || 'Unknown Product',
-      price: product.pricing?.salePrice || product.pricing?.originalPrice || 0,
-      image: getProductImage(product),
-      sku: product.sku
-    };
-
-    dispatch({ type: 'ADD', payload: cartItem });
-    setToastMsg(`✅ Added ${product.name?.en} to cart!`);
   };
 
   // Get product primary image
@@ -112,7 +122,6 @@ function SearchResults() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      {toastMsg && <Toast message={toastMsg} onClose={() => setToastMsg('')} />}
       
       {/* Search Header */}
       <div className="mb-8">

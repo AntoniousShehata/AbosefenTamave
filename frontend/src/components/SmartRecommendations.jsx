@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
-import Toast from './Toast';
+import { useToast } from '../components/Toast';
 import axios from 'axios';
 
 function SmartRecommendations({ 
@@ -19,7 +19,8 @@ function SmartRecommendations({
   const [toastMsg, setToastMsg] = useState('');
   
   const navigate = useNavigate();
-  const { dispatch } = useCart();
+  const { addItem } = useCart();
+  const { showSuccess, showError } = useToast();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -127,24 +128,35 @@ function SmartRecommendations({
   const handleAddToCart = async (product, e) => {
     e.stopPropagation();
     
-    if (!product.inventory?.inStock) {
-      setToastMsg('❌ Product is out of stock');
-      return;
+    try {
+      if (!product.inventory?.inStock) {
+        showError('Product is out of stock');
+        return;
+      }
+
+      const cartItem = {
+        _id: product._id,
+        name: product.name,
+        slug: product.slug,
+        pricing: {
+          salePrice: product.pricing?.salePrice || product.pricing?.originalPrice,
+          originalPrice: product.pricing?.originalPrice,
+          currency: product.pricing?.currency || 'EGP'
+        },
+        images: product.images,
+        inventory: product.inventory,
+        sku: product.sku
+      };
+
+      addItem(cartItem, 1);
+      showSuccess(`${product.name?.en || 'Product'} added to cart!`);
+      
+      // Track interaction
+      await trackInteraction(product._id, 'add_to_cart');
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      showError('Failed to add product to cart');
     }
-
-    const cartItem = {
-      id: product._id,
-      name: product.name?.en || 'Unknown Product',
-      price: product.pricing?.salePrice || product.pricing?.originalPrice || 0,
-      image: getProductImage(product),
-      sku: product.sku
-    };
-
-    dispatch({ type: 'ADD', payload: cartItem });
-    setToastMsg(`✅ Added ${product.name?.en} to cart!`);
-    
-    // Track interaction
-    await trackInteraction(product._id, 'add_to_cart');
   };
 
   // Handle product click
@@ -231,7 +243,7 @@ function SmartRecommendations({
 
   return (
     <div className={`${className}`}>
-      {toastMsg && <Toast message={toastMsg} onClose={() => setToastMsg('')} />}
+
       
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2 flex items-center">
@@ -289,15 +301,21 @@ function SmartRecommendations({
                   // Add all products in bundle to cart
                   [bundle.mainProduct, ...bundle.complementaryProducts].forEach(product => {
                     const cartItem = {
-                      id: product._id,
-                      name: product.name?.en || 'Unknown Product',
-                      price: product.pricing?.salePrice || product.pricing?.originalPrice || 0,
-                      image: getProductImage(product),
+                      _id: product._id,
+                      name: product.name,
+                      slug: product.slug,
+                      pricing: {
+                        salePrice: product.pricing?.salePrice || product.pricing?.originalPrice,
+                        originalPrice: product.pricing?.originalPrice,
+                        currency: product.pricing?.currency || 'EGP'
+                      },
+                      images: product.images,
+                      inventory: product.inventory,
                       sku: product.sku
                     };
-                    dispatch({ type: 'ADD', payload: cartItem });
+                    addItem(cartItem, 1);
                   });
-                  setToastMsg('✅ Bundle added to cart!');
+                  showSuccess('Bundle added to cart!');
                 }}
                 className="w-full mt-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-purple-700 transition"
               >

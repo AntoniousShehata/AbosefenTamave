@@ -1,3 +1,5 @@
+const { ObjectId } = require('mongodb');
+
 class RecommendationService {
   constructor(db) {
     this.db = db;
@@ -29,6 +31,8 @@ class RecommendationService {
 
   // Find related categories based on product specifications and tags
   findRelatedCategories(categoryId, products) {
+    if (!products || !Array.isArray(products)) return [];
+    
     const categoryProducts = products.filter(p => p.categoryId === categoryId);
     const relatedCategories = new Map();
     
@@ -72,6 +76,12 @@ class RecommendationService {
 
   // Calculate similarity between two products
   calculateProductSimilarity(product1, product2) {
+    if (!product1 || !product2) return 0;
+    
+    // Ensure tags are arrays or set to empty arrays
+    if (!Array.isArray(product1.tags)) product1.tags = [];
+    if (!Array.isArray(product2.tags)) product2.tags = [];
+    
     let similarity = 0;
     
     // Price similarity
@@ -100,7 +110,7 @@ class RecommendationService {
     }
     
     // Tag similarity
-    if (product1.tags && product2.tags) {
+    if (product1.tags && product2.tags && Array.isArray(product1.tags) && Array.isArray(product2.tags)) {
       const commonTags = product1.tags.filter(tag => product2.tags.includes(tag));
       similarity += (commonTags.length / Math.max(product1.tags.length, product2.tags.length)) * 0.1;
     }
@@ -111,13 +121,16 @@ class RecommendationService {
   // Get related products for a specific product
   async getRelatedProducts(productId, limit = 6) {
     try {
-      const product = await this.db.collection('products').findOne({ _id: productId });
+      // Convert string ID to ObjectId if needed
+      const objectId = typeof productId === 'string' ? new ObjectId(productId) : productId;
+      
+      const product = await this.db.collection('products').findOne({ _id: objectId });
       if (!product) return [];
       
       const allProducts = await this.db.collection('products')
         .find({ 
           isActive: true, 
-          _id: { $ne: productId },
+          _id: { $ne: objectId },
           'inventory.inStock': true 
         })
         .toArray();
@@ -142,15 +155,18 @@ class RecommendationService {
   // Get frequently bought together products
   async getFrequentlyBoughtTogether(productId, limit = 4) {
     try {
+      // Convert string ID to ObjectId if needed
+      const objectId = typeof productId === 'string' ? new ObjectId(productId) : productId;
+      
       // This would typically use order history data
       // For now, we'll simulate with category-based and specification-based recommendations
-      const product = await this.db.collection('products').findOne({ _id: productId });
+      const product = await this.db.collection('products').findOne({ _id: objectId });
       if (!product) return [];
       
       const complementaryProducts = await this.db.collection('products')
         .find({
           isActive: true,
-          _id: { $ne: productId },
+          _id: { $ne: objectId },
           'inventory.inStock': true,
           $or: [
             { categoryId: { $in: this.getComplementaryCategories(product.categoryId) } },
@@ -194,6 +210,8 @@ class RecommendationService {
   // Get complementary tags
   getComplementaryTags(tags) {
     const complementaryTags = [];
+    
+    if (!Array.isArray(tags)) return complementaryTags;
     
     tags.forEach(tag => {
       const tagLower = tag.toLowerCase();
@@ -327,13 +345,16 @@ class RecommendationService {
   // Get similar products by specifications
   async getSimilarBySpecs(productId, limit = 4) {
     try {
-      const product = await this.db.collection('products').findOne({ _id: productId });
+      // Convert string ID to ObjectId if needed
+      const objectId = typeof productId === 'string' ? new ObjectId(productId) : productId;
+      
+      const product = await this.db.collection('products').findOne({ _id: objectId });
       if (!product || !product.specifications) return [];
       
       const similarProducts = await this.db.collection('products')
         .find({
           isActive: true,
-          _id: { $ne: productId },
+          _id: { $ne: objectId },
           'inventory.inStock': true,
           categoryId: product.categoryId // Same category
         })
@@ -390,7 +411,10 @@ class RecommendationService {
   // Get smart bundle recommendations
   async getSmartBundles(productId, limit = 3) {
     try {
-      const mainProduct = await this.db.collection('products').findOne({ _id: productId });
+      // Convert string ID to ObjectId if needed
+      const objectId = typeof productId === 'string' ? new ObjectId(productId) : productId;
+      
+      const mainProduct = await this.db.collection('products').findOne({ _id: objectId });
       if (!mainProduct) return [];
       
       const complementaryProducts = await this.getFrequentlyBoughtTogether(productId, 10);

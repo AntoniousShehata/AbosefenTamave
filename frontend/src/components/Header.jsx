@@ -6,8 +6,10 @@ import SmartSearch from './SmartSearch';
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const { cart } = useCart();
+  const { getCartTotals } = useCart();
   const { isAuthenticated, user, logout, isAdmin } = useAuth();
+  
+  const cartTotals = getCartTotals();
 
   const handleLogout = () => {
     logout();
@@ -38,11 +40,16 @@ function Header() {
           
           {isAuthenticated ? (
             <>
-              <Link to="/cart" className="relative hover:text-secondary transition">
-                🛒 Cart
-                {cart.length > 0 && (
-                  <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                    {cart.length}
+              <Link to="/cart" className="relative hover:text-secondary transition group">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                  </svg>
+                  <span>Cart</span>
+                </div>
+                {cartTotals.itemCount > 0 && (
+                  <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full min-w-[20px] text-center font-semibold animate-pulse">
+                    {cartTotals.itemCount}
                   </span>
                 )}
               </Link>
@@ -69,9 +76,9 @@ function Header() {
             <>
               <Link to="/cart" className="relative hover:text-secondary transition">
                 🛒 Cart
-                {cart.length > 0 && (
+                {cartTotals.itemCount > 0 && (
                   <span className="absolute -top-2 -right-3 bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                    {cart.length}
+                    {cartTotals.itemCount}
                   </span>
                 )}
               </Link>
@@ -127,9 +134,9 @@ function Header() {
           </Link>
           <Link to="/cart" onClick={() => setIsOpen(false)} className="block py-2 hover:text-secondary">
             🛒 Cart
-            {cart.length > 0 && (
+            {cartTotals.itemCount > 0 && (
               <span className="ml-2 inline-block bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
-                {cart.length}
+                {cartTotals.itemCount}
               </span>
             )}
           </Link>
