@@ -202,115 +202,109 @@ function Contact() {
         {/* Enhanced Store Showcase Section */}
         <div className="mt-12">
           <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div className="relative">
-              {/* Store Hero Image */}
-              <div className="relative h-[500px] overflow-hidden bg-gradient-to-br from-gray-800 to-gray-900">
-                <img
-                  src="/images/shop.jpg"
-                  alt="Abosefen & TamaveIrini Storefront"
-                  className="w-full h-full object-contain"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/30"></div>
-                
-                {/* Store Information Overlay */}
-                <div className="absolute inset-0 flex items-center">
-                  <div className="max-w-2xl mx-auto px-8 text-white">
-                    <div className="mb-4">
-                      <h2 className="text-4xl md:text-5xl font-bold mb-2">Visit Our Store</h2>
-                      <p className="text-xl md:text-2xl opacity-90">Abosefen & TamaveIrini</p>
+            <div className="grid lg:grid-cols-2 gap-0">
+              {/* Store Information - Left Side */}
+              <div className="bg-gradient-to-br from-blue-600 to-blue-800 p-8 lg:p-12 flex items-center">
+                <div className="w-full text-white">
+                  <div className="mb-6">
+                    <h2 className="text-4xl md:text-5xl font-bold mb-3">Visit Our Store</h2>
+                    <p className="text-xl md:text-2xl opacity-90 font-medium">Abosefen & TamaveIrini</p>
+                  </div>
+                  
+                  <div className="space-y-4 mb-8">
+                    <div className="flex items-center text-lg">
+                      <svg className="w-6 h-6 mr-4 text-blue-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                      </svg>
+                      <span>Downtown Cairo, Egypt</span>
                     </div>
                     
-                    <div className="space-y-3 mb-8">
-                      <div className="flex items-center text-lg">
-                        <svg className="w-6 h-6 mr-3 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                        </svg>
-                        <span>Downtown Cairo, Egypt</span>
-                      </div>
-                      
-                      <div className="flex items-center text-lg">
-                        <svg className="w-6 h-6 mr-3 text-green-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                        <span>Mon-Sat: 9 AM – 9 PM</span>
-                      </div>
-                      
-                      <div className="flex items-center text-lg">
-                        <svg className="w-6 h-6 mr-3 text-yellow-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                        </svg>
-                        <span>Premium Bathroom & Kitchen Fittings</span>
-                      </div>
+                    <div className="flex items-center text-lg">
+                      <svg className="w-6 h-6 mr-4 text-green-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <span>Mon-Sat: 9 AM – 9 PM</span>
                     </div>
-
-                    <div className="flex flex-col sm:flex-row gap-4">
-                      <a
-                        href="https://maps.app.goo.gl/eBJY31BSuHipwYXf8"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
-                        </svg>
-                        Get Directions
-                      </a>
-                      
-                      <a
-                        href="tel:+20227868761"
-                        className="bg-green-600 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                      >
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
-                        </svg>
-                        Call Now
-                      </a>
+                    
+                    <div className="flex items-center text-lg">
+                      <svg className="w-6 h-6 mr-4 text-yellow-200 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                      </svg>
+                      <span>Premium Bathroom & Kitchen Fittings</span>
                     </div>
                   </div>
-                </div>
 
-                {/* Decorative Elements */}
-                <div className="absolute top-4 right-4 opacity-20">
-                  <div className="w-32 h-32 border-4 border-white rounded-full animate-pulse"></div>
-                </div>
-                <div className="absolute bottom-4 left-4 opacity-20">
-                  <div className="w-24 h-24 border-4 border-white rounded-full animate-bounce"></div>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <a
+                      href="https://maps.app.goo.gl/eBJY31BSuHipwYXf8"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center hover:bg-blue-50"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
+                      </svg>
+                      Get Directions
+                    </a>
+                    
+                    <a
+                      href="tel:+20227868761"
+                      className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                    >
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                      </svg>
+                      Call Now
+                    </a>
+                  </div>
                 </div>
               </div>
 
-              {/* Store Features */}
-              <div className="p-8 bg-gradient-to-r from-gray-50 to-blue-50">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Showroom</h4>
-                    <p className="text-gray-600 text-sm">Experience our premium collection in person</p>
-                  </div>
+              {/* Store Photo - Right Side */}
+              <div className="relative h-[500px] lg:h-auto overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                <img
+                  src="/images/shop.jpg"
+                  alt="Abosefen & TamaveIrini Storefront"
+                  className="w-full h-full object-contain lg:object-cover"
+                />
+                
+                {/* Subtle overlay for better blend */}
+                <div className="absolute inset-0 bg-gradient-to-l from-transparent to-blue-600/10"></div>
+              </div>
+            </div>
 
-                  <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Expert Support</h4>
-                    <p className="text-gray-600 text-sm">Professional consultation and installation</p>
+            {/* Store Features */}
+            <div className="p-8 bg-gradient-to-r from-gray-50 to-blue-50">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                    </svg>
                   </div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Showroom</h4>
+                  <p className="text-gray-600 text-sm">Experience our premium collection in person</p>
+                </div>
 
-                  <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
-                    <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                      <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
-                      </svg>
-                    </div>
-                    <h4 className="text-lg font-semibold text-gray-800 mb-2">Quality Guarantee</h4>
-                    <p className="text-gray-600 text-sm">Premium products with warranty coverage</p>
+                <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
                   </div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Expert Support</h4>
+                  <p className="text-gray-600 text-sm">Professional consultation and installation</p>
+                </div>
+
+                <div className="text-center p-6 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300">
+                  <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+                    </svg>
+                  </div>
+                  <h4 className="text-lg font-semibold text-gray-800 mb-2">Quality Guarantee</h4>
+                  <p className="text-gray-600 text-sm">Premium products with warranty coverage</p>
                 </div>
               </div>
             </div>
