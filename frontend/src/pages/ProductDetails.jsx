@@ -18,6 +18,7 @@ function ProductDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [addingToCart, setAddingToCart] = useState(false);
+  const [showFullSpecs, setShowFullSpecs] = useState(false);
 
   // Fetch product details
   useEffect(() => {
@@ -124,13 +125,13 @@ function ProductDetails() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center section-padding">
         <div className="flex items-center space-x-3">
-          <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg className="animate-spin h-6 w-6 sm:h-8 sm:w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span className="text-lg text-gray-600">Loading product...</span>
+          <span className="text-responsive-lg text-gray-600">Loading product...</span>
         </div>
       </div>
     );
@@ -139,24 +140,24 @@ function ProductDetails() {
   if (error || !product) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center py-12 px-6">
-          <div className="mb-8">
-            <svg className="w-24 h-24 mx-auto text-gray-300 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center section-padding">
+          <div className="mb-6 sm:mb-8">
+            <svg className="w-16 h-16 sm:w-24 sm:h-24 mx-auto text-gray-300 mb-4 sm:mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Product Not Found</h2>
-            <p className="text-lg text-gray-600 mb-8">{error || 'The product you are looking for does not exist.'}</p>
+            <h2 className="text-responsive-3xl font-bold text-gray-900 mb-2 sm:mb-4">Product Not Found</h2>
+            <p className="text-responsive-lg text-gray-600 mb-6 sm:mb-8">{error || 'The product you are looking for does not exist.'}</p>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3 sm:space-y-4">
             <button
               onClick={() => navigate('/products')}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300"
+              className="btn btn-primary text-responsive-lg px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto touch-manipulation"
             >
               ← Back to Products
             </button>
             <button
               onClick={() => navigate('/')}
-              className="block mx-auto border-2 border-gray-300 text-gray-700 hover:border-blue-600 hover:text-blue-600 px-8 py-3 rounded-lg font-semibold transition-all duration-300"
+              className="btn btn-outline text-responsive-lg px-6 py-3 sm:px-8 sm:py-3 w-full sm:w-auto touch-manipulation"
             >
               Go to Home
             </button>
@@ -173,45 +174,46 @@ function ProductDetails() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-6 lg:px-8 py-8">
+      <div className="container-responsive section-padding">
         {/* Breadcrumb */}
-        <nav className="mb-8 text-sm">
-          <ol className="flex items-center space-x-2 text-gray-600">
-            <li><button onClick={() => navigate('/')} className="text-blue-600 hover:text-blue-800 transition-colors">Home</button></li>
+        <nav className="mb-4 sm:mb-6 lg:mb-8 text-responsive-sm">
+          <ol className="flex items-center space-x-1 sm:space-x-2 text-gray-600 overflow-x-auto scrollbar-hide">
+            <li><button onClick={() => navigate('/')} className="text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">Home</button></li>
             <li>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </li>
-            <li><button onClick={() => navigate('/products')} className="text-blue-600 hover:text-blue-800 transition-colors">Products</button></li>
-            <li>
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </li>
+            <li><button onClick={() => navigate('/products')} className="text-blue-600 hover:text-blue-800 transition-colors whitespace-nowrap">Products</button></li>
             {product.category && (
               <>
-                <li><span className="text-blue-600">{product.category.name?.en}</span></li>
                 <li>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </li>
+                <li><span className="text-blue-600 whitespace-nowrap">{product.category.name?.en}</span></li>
               </>
             )}
+            <li>
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </li>
             <li className="text-gray-900 font-medium truncate">{product.name?.en}</li>
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12 lg:mb-16">
           {/* Product Images */}
-          <div className="space-y-6">
+          <div className="space-y-3 sm:space-y-4 lg:space-y-6">
             {/* Main Image */}
-            <div className="aspect-square bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="aspect-square bg-white rounded-lg sm:rounded-xl lg:rounded-2xl shadow-lg overflow-hidden">
               <img
                 src={images[selectedImage]?.url}
                 alt={images[selectedImage]?.alt?.en || product.name?.en}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                loading="eager"
                 onError={(e) => {
                   e.target.src = '/images/products/default.jpg';
                 }}
@@ -220,12 +222,12 @@ function ProductDetails() {
             
             {/* Image Thumbnails */}
             {images.length > 1 && (
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-4 gap-2 sm:gap-3 lg:gap-4">
                 {images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
-                    className={`aspect-square bg-white rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                    className={`aspect-square bg-white rounded-md sm:rounded-lg overflow-hidden border-2 transition-all duration-200 touch-manipulation ${
                       selectedImage === index ? 'border-blue-600 shadow-lg' : 'border-gray-200 hover:border-gray-300 hover:shadow-md'
                     }`}
                   >
@@ -233,6 +235,7 @@ function ProductDetails() {
                       src={image.url}
                       alt={image.alt?.en || `Product image ${index + 1}`}
                       className="w-full h-full object-cover"
+                      loading="lazy"
                       onError={(e) => {
                         e.target.src = '/images/products/default.jpg';
                       }}
@@ -244,26 +247,26 @@ function ProductDetails() {
           </div>
 
           {/* Product Info */}
-          <div className="space-y-8">
+          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
             {/* Product Name & SKU */}
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">{product.name?.en}</h1>
+              <h1 className="text-responsive-3xl font-bold text-gray-900 mb-2 sm:mb-3">{product.name?.en}</h1>
               {product.name?.ar && (
-                <p className="text-xl text-gray-600 mb-2">{product.name.ar}</p>
+                <p className="text-responsive-xl text-gray-600 mb-1 sm:mb-2">{product.name.ar}</p>
               )}
               {product.sku && (
-                <p className="text-sm text-gray-500">SKU: {product.sku}</p>
+                <p className="text-responsive-sm text-gray-500">SKU: {product.sku}</p>
               )}
             </div>
 
             {/* Rating & Reviews */}
             {product.rating && (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 <div className="flex items-center">
                   {[...Array(5)].map((_, i) => (
                     <svg
                       key={i}
-                      className={`w-6 h-6 ${i < Math.round(product.rating.average) ? 'text-yellow-400' : 'text-gray-300'}`}
+                      className={`w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 ${i < Math.round(product.rating.average) ? 'text-yellow-400' : 'text-gray-300'}`}
                       fill="currentColor"
                       viewBox="0 0 20 20"
                     >
@@ -271,70 +274,70 @@ function ProductDetails() {
                     </svg>
                   ))}
                 </div>
-                <span className="text-lg font-medium text-gray-700">
+                <span className="text-responsive-lg font-medium text-gray-700">
                   {product.rating.average}
                 </span>
-                <span className="text-gray-500">
+                <span className="text-responsive-sm text-gray-500">
                   ({product.rating.totalReviews} reviews)
                 </span>
               </div>
             )}
 
             {/* Price */}
-            <div className="bg-gray-50 rounded-xl p-6">
-              <div className="flex items-center space-x-4 mb-3">
-                <span className="text-4xl font-bold text-blue-600">
+            <div className="bg-gray-50 rounded-lg sm:rounded-xl p-4 sm:p-6">
+              <div className="flex flex-col xs:flex-row xs:items-center space-y-2 xs:space-y-0 xs:space-x-3 sm:space-x-4 mb-2 sm:mb-3">
+                <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-blue-600">
                   {formatPrice(product.pricing?.salePrice || product.pricing?.originalPrice)}
                 </span>
                 {product.pricing?.originalPrice && product.pricing.salePrice && product.pricing.originalPrice > product.pricing.salePrice && (
-                  <span className="text-2xl text-gray-500 line-through">
+                  <span className="text-lg sm:text-xl lg:text-2xl text-gray-500 line-through">
                     {formatPrice(product.pricing.originalPrice)}
                   </span>
                 )}
                 {product.pricing?.isOnSale && product.pricing.discountPercentage && (
-                  <span className="bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <span className="bg-red-500 text-white px-2 py-1 sm:px-3 rounded-full text-xs sm:text-sm font-bold inline-block">
                     -{product.pricing.discountPercentage}% OFF
                   </span>
                 )}
               </div>
               {savings && (
-                <p className="text-green-600 font-semibold text-lg">You save {formatPrice(savings)}</p>
+                <p className="text-green-600 font-semibold text-responsive-lg">You save {formatPrice(savings)}</p>
               )}
             </div>
 
             {/* Description */}
             <div>
-              <p className="text-gray-700 leading-relaxed text-lg">{product.description?.en}</p>
+              <p className="text-gray-700 leading-relaxed text-responsive-lg">{product.description?.en}</p>
             </div>
 
             {/* Stock Status */}
-            <div className="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center space-x-2 sm:space-x-3 p-3 sm:p-4 bg-gray-50 rounded-lg">
               {product.inventory?.inStock ? (
                 <>
-                  <div className="w-4 h-4 bg-green-500 rounded-full"></div>
-                  <span className="text-green-700 font-semibold text-lg">In Stock</span>
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-green-500 rounded-full"></div>
+                  <span className="text-green-700 font-semibold text-responsive-lg">In Stock</span>
                   {product.inventory.quantity && product.inventory.quantity <= product.inventory.lowStockThreshold && (
-                    <span className="text-orange-600 font-medium">
+                    <span className="text-orange-600 font-medium text-responsive-base">
                       Only {product.inventory.quantity} left!
                     </span>
                   )}
                 </>
               ) : (
                 <>
-                  <div className="w-4 h-4 bg-red-500 rounded-full"></div>
-                  <span className="text-red-700 font-semibold text-lg">Out of Stock</span>
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-red-500 rounded-full"></div>
+                  <span className="text-red-700 font-semibold text-responsive-lg">Out of Stock</span>
                 </>
               )}
             </div>
 
             {/* Cart Status */}
             {isProductInCart && (
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4">
                 <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
                   </svg>
-                  <span className="text-blue-800 font-medium">
+                  <span className="text-blue-800 font-medium text-responsive-base">
                     {currentQuantityInCart} {currentQuantityInCart === 1 ? 'item' : 'items'} in cart
                   </span>
                 </div>
@@ -343,15 +346,15 @@ function ProductDetails() {
 
             {/* Quantity Selector & Action Buttons */}
             {product.inventory?.inStock && (
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4">
-                  <label htmlFor="quantity" className="text-lg font-semibold text-gray-700">Quantity:</label>
-                  <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden">
+              <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col xs:flex-row xs:items-center space-y-2 xs:space-y-0 xs:space-x-4">
+                  <label htmlFor="quantity" className="text-responsive-lg font-semibold text-gray-700">Quantity:</label>
+                  <div className="flex items-center border-2 border-gray-300 rounded-lg overflow-hidden w-fit">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
+                      className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors touch-manipulation"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
                       </svg>
                     </button>
@@ -361,28 +364,28 @@ function ProductDetails() {
                       min="1"
                       value={quantity}
                       onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                      className="w-20 h-12 text-center text-lg font-semibold border-0 focus:ring-0 focus:outline-none"
+                      className="w-16 sm:w-20 h-10 sm:h-12 text-center text-responsive-lg font-semibold border-0 focus:ring-0 focus:outline-none"
                     />
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-12 h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors"
+                      className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors touch-manipulation"
                     >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
                     </button>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <button
                     onClick={handleAddToCart}
                     disabled={addingToCart}
-                    className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg disabled:transform-none disabled:shadow-none"
+                    className="w-full btn btn-primary text-responsive-lg py-3 sm:py-4 px-4 sm:px-6 shadow-lg transform hover:scale-105 disabled:transform-none disabled:shadow-none touch-manipulation"
                   >
                     {addingToCart ? (
                       <span className="flex items-center justify-center">
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <svg className="animate-spin -ml-1 mr-3 h-4 w-4 sm:h-5 sm:w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
@@ -390,7 +393,7 @@ function ProductDetails() {
                       </span>
                     ) : (
                       <>
-                        <svg className="w-6 h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5-6m0 0h15M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
                         </svg>
                         Add to Cart
@@ -400,7 +403,7 @@ function ProductDetails() {
                   
                   <button
                     onClick={handleBuyNow}
-                    className="w-full border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white py-4 px-6 rounded-lg font-semibold text-lg transition-all duration-300"
+                    className="w-full btn btn-outline text-responsive-lg py-3 sm:py-4 px-4 sm:px-6 touch-manipulation"
                   >
                     Buy Now
                   </button>
@@ -408,17 +411,17 @@ function ProductDetails() {
               </div>
             )}
 
-            {/* Features */}
+            {/* Features - Mobile Optimized */}
             {product.features?.en && product.features.en.length > 0 && (
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">Key Features</h3>
-                <ul className="space-y-3">
+                <h3 className="text-responsive-xl font-bold text-gray-900 mb-3 sm:mb-4">Key Features</h3>
+                <ul className="space-y-2 sm:space-y-3">
                   {product.features.en.map((feature, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <svg className="w-6 h-6 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <li key={index} className="flex items-start space-x-2 sm:space-x-3">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 text-green-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      <span className="text-gray-700 text-lg">{feature}</span>
+                      <span className="text-gray-700 text-responsive-lg">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -427,19 +430,19 @@ function ProductDetails() {
           </div>
         </div>
 
-        {/* Product Specifications */}
+        {/* Product Specifications - Mobile Optimized */}
         {product.specifications && (
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Product Specifications</h2>
-            <div className="bg-white rounded-2xl shadow-lg p-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <div key={key} className="border-b border-gray-200 pb-4">
-                    <div className="flex justify-between items-start">
-                      <span className="font-semibold text-gray-800 capitalize text-lg">
+          <div className="mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-responsive-3xl font-bold text-gray-900 mb-4 sm:mb-6 lg:mb-8">Product Specifications</h2>
+            <div className="card p-4 sm:p-6 lg:p-8">
+              <div className="space-y-3 sm:space-y-4 lg:space-y-6">
+                {Object.entries(product.specifications).slice(0, showFullSpecs ? undefined : 5).map(([key, value]) => (
+                  <div key={key} className="border-b border-gray-200 pb-3 sm:pb-4">
+                    <div className="flex flex-col xs:flex-row xs:justify-between xs:items-start gap-1 xs:gap-4">
+                      <span className="font-semibold text-gray-800 capitalize text-responsive-lg flex-shrink-0">
                         {key.replace(/([A-Z])/g, ' $1').trim()}:
                       </span>
-                      <span className="text-gray-600 text-lg text-right">
+                      <span className="text-gray-600 text-responsive-lg xs:text-right">
                         {typeof value === 'object' ? 
                           Object.entries(value).map(([k, v]) => `${k}: ${v}`).join(', ') : 
                           value
@@ -448,6 +451,14 @@ function ProductDetails() {
                     </div>
                   </div>
                 ))}
+                {Object.entries(product.specifications).length > 5 && (
+                  <button
+                    onClick={() => setShowFullSpecs(!showFullSpecs)}
+                    className="w-full sm:w-auto btn btn-outline text-responsive-base py-2 px-4 touch-manipulation"
+                  >
+                    {showFullSpecs ? 'Show Less' : `Show All (${Object.entries(product.specifications).length} specs)`}
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -455,40 +466,40 @@ function ProductDetails() {
 
         {/* Long Description */}
         {product.longDescription?.en && (
-          <div className="mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Product Details</h2>
-            <div className="bg-white rounded-2xl shadow-lg p-8">
+          <div className="mb-8 sm:mb-12 lg:mb-16">
+            <h2 className="text-responsive-3xl font-bold text-gray-900 mb-4 sm:mb-6 lg:mb-8">Product Details</h2>
+            <div className="card p-4 sm:p-6 lg:p-8">
               <div className="prose max-w-none">
-                <p className="text-gray-700 leading-relaxed text-lg">{product.longDescription.en}</p>
+                <p className="text-gray-700 leading-relaxed text-responsive-lg">{product.longDescription.en}</p>
               </div>
             </div>
           </div>
         )}
 
         {/* Smart Recommendations */}
-        <div className="space-y-16">
+        <div className="space-y-8 sm:space-y-12 lg:space-y-16">
           <SmartRecommendations
             productId={product._id}
             type="related"
-            className="mb-8"
+            className="mb-4 sm:mb-8"
           />
           
           <SmartRecommendations
             productId={product._id}
             type="frequently-bought-together"
-            className="mb-8"
+            className="mb-4 sm:mb-8"
           />
           
           <SmartRecommendations
             productId={product._id}
             type="bundles"
-            className="mb-8"
+            className="mb-4 sm:mb-8"
           />
           
           <SmartRecommendations
             productId={product._id}
             type="similar"
-            className="mb-8"
+            className="mb-4 sm:mb-8"
           />
         </div>
       </div>

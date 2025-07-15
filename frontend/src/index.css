@@ -2,3 +2,190 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  /* Mobile-first responsive design base styles */
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  body {
+    @apply text-sm sm:text-base;
+    @apply overflow-x-hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Ensure images are responsive by default */
+  img {
+    @apply max-w-full h-auto;
+  }
+  
+  /* Better focus styles for accessibility */
+  button:focus,
+  input:focus,
+  textarea:focus,
+  select:focus {
+    @apply outline-none ring-2 ring-primary ring-opacity-50;
+  }
+}
+
+@layer components {
+  /* Mobile-first button styles */
+  .btn {
+    @apply px-4 py-2 sm:px-6 sm:py-3 rounded-lg font-medium transition-all duration-200;
+    @apply text-sm sm:text-base;
+    @apply min-h-[44px]; /* Minimum touch target size */
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark;
+    @apply active:scale-95 transform;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-red-700;
+    @apply active:scale-95 transform;
+  }
+  
+  .btn-outline {
+    @apply border-2 border-primary text-primary hover:bg-primary hover:text-white;
+    @apply active:scale-95 transform;
+  }
+  
+  /* Mobile-first card styles */
+  .card {
+    @apply bg-white rounded-lg shadow-md p-4 sm:p-6;
+    @apply hover:shadow-lg transition-shadow duration-200;
+  }
+  
+  .card-product {
+    @apply bg-white rounded-lg shadow-md overflow-hidden;
+    @apply hover:shadow-xl transition-all duration-300;
+    @apply transform hover:-translate-y-1;
+  }
+  
+  /* Mobile-first form styles */
+  .form-input {
+    @apply w-full px-3 py-2 sm:px-4 sm:py-3;
+    @apply border border-gray-300 rounded-lg;
+    @apply focus:ring-2 focus:ring-primary focus:border-primary;
+    @apply text-sm sm:text-base;
+    @apply min-h-[44px]; /* Minimum touch target size */
+  }
+  
+  .form-label {
+    @apply block text-sm sm:text-base font-medium text-gray-700 mb-1 sm:mb-2;
+  }
+  
+  /* Mobile-first navigation styles */
+  .nav-link {
+    @apply block px-3 py-2 sm:px-4 sm:py-2;
+    @apply text-sm sm:text-base;
+    @apply transition-colors duration-200;
+    @apply min-h-[44px] flex items-center; /* Minimum touch target size */
+  }
+  
+  /* Mobile-first grid styles */
+  .grid-responsive {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+    @apply gap-4 sm:gap-6;
+  }
+  
+  .grid-responsive-products {
+    @apply grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5;
+    @apply gap-3 sm:gap-4 lg:gap-6;
+  }
+  
+  /* Mobile-first spacing utilities */
+  .section-padding {
+    @apply px-4 py-8 sm:px-6 sm:py-12 lg:px-8 lg:py-16;
+  }
+  
+  .container-responsive {
+    @apply container mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  /* Mobile-first utility classes */
+  .touch-manipulation {
+    touch-action: manipulation;
+  }
+  
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+  
+  /* Text size utilities for mobile-first */
+  .text-responsive-sm {
+    @apply text-xs sm:text-sm;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm sm:text-base;
+  }
+  
+  .text-responsive-lg {
+    @apply text-base sm:text-lg;
+  }
+  
+  .text-responsive-xl {
+    @apply text-lg sm:text-xl;
+  }
+  
+  .text-responsive-2xl {
+    @apply text-xl sm:text-2xl;
+  }
+  
+  .text-responsive-3xl {
+    @apply text-2xl sm:text-3xl lg:text-4xl;
+  }
+  
+  /* Mobile-first safe area utilities */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+  
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile-specific utilities */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  /* Loading and animation utilities */
+  .animate-pulse-soft {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  
+  .animate-bounce-soft {
+    animation: bounce 1s infinite;
+  }
+}
+
