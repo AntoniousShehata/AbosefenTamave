@@ -720,25 +720,60 @@ app.get('/products/search', async (req, res) => {
       });
     }
 
-    if (!smartSearchService) {
-      return res.status(503).json({ 
-        success: false, 
-        error: 'Search service not available' 
-      });
+    // Simple search using direct database query
+    const searchTerm = q.toLowerCase().trim();
+    const searchLimit = parseInt(limit);
+    const skip = (parseInt(page) - 1) * searchLimit;
+    
+    // Build search filter
+    const searchFilter = {
+      isActive: true,
+      $or: [
+        { 'name.en': { $regex: searchTerm, $options: 'i' } },
+        { 'description.en': { $regex: searchTerm, $options: 'i' } }
+      ]
+    };
+
+    // Add category filter if provided
+    if (category) {
+      searchFilter.categoryId = category;
     }
 
-    const searchResults = await smartSearchService.searchProducts(q, {
-      category,
-      sortBy,
-      limit: parseInt(limit),
-      page: parseInt(page)
-    });
+    // Build sort criteria
+    let sortCriteria = {};
+    switch (sortBy) {
+      case 'price_low':
+        sortCriteria = { 'pricing.salePrice': 1, 'pricing.originalPrice': 1 };
+        break;
+      case 'price_high':
+        sortCriteria = { 'pricing.salePrice': -1, 'pricing.originalPrice': -1 };
+        break;
+      case 'rating':
+        sortCriteria = { 'rating.average': -1 };
+        break;
+      case 'newest':
+        sortCriteria = { createdAt: -1 };
+        break;
+      default:
+        sortCriteria = { featured: -1, 'rating.average': -1 };
+    }
+
+    // Get products and total count
+    const [products, totalCount] = await Promise.all([
+      db.collection('products')
+        .find(searchFilter)
+        .sort(sortCriteria)
+        .skip(skip)
+        .limit(searchLimit)
+        .toArray(),
+      db.collection('products').countDocuments(searchFilter)
+    ]);
 
     res.json({
       success: true,
-      products: searchResults.products,
-      total: searchResults.total,
-      suggestions: searchResults.suggestions
+      products: products,
+      total: totalCount,
+      suggestions: []
     });
   } catch (error) {
     console.error('❌ Error in product search:', error);
@@ -752,7 +787,7 @@ app.get('/products/search', async (req, res) => {
 // 🎯 Smart search with auto-complete and typo correction
 app.get('/products/smart-search', async (req, res) => {
   try {
-    const { q, category, sortBy = 'relevance', limit = 20, page = 1 } = req.query;
+    const { q, category, sortBy = 'relevance', limit = 20, page = 1, includeSuggestions } = req.query;
     
     if (!q || q.trim() === '') {
       return res.status(400).json({
@@ -761,27 +796,85 @@ app.get('/products/smart-search', async (req, res) => {
       });
     }
 
-    if (!smartSearchService) {
-      return res.status(503).json({ 
-        success: false, 
-        error: 'Search service not available' 
-      });
+    // Simple search using direct database query
+    const searchTerm = q.toLowerCase().trim();
+    const searchLimit = parseInt(limit);
+    const skip = (parseInt(page) - 1) * searchLimit;
+    
+    // Build search filter
+    const searchFilter = {
+      isActive: true,
+      $or: [
+        { 'name.en': { $regex: searchTerm, $options: 'i' } },
+        { 'description.en': { $regex: searchTerm, $options: 'i' } },
+        { 'tags': { $in: [new RegExp(searchTerm, 'i')] } }
+      ]
+    };
+
+    // Add category filter if provided
+    if (category) {
+      searchFilter.categoryId = category;
     }
 
-    const searchResults = await smartSearchService.searchProducts(q, {
-      category,
-      sortBy,
-      limit: parseInt(limit),
-      page: parseInt(page)
-    });
+    // Build sort criteria
+    let sortCriteria = {};
+    switch (sortBy) {
+      case 'price_low':
+        sortCriteria = { 'pricing.salePrice': 1, 'pricing.originalPrice': 1 };
+        break;
+      case 'price_high':
+        sortCriteria = { 'pricing.salePrice': -1, 'pricing.originalPrice': -1 };
+        break;
+      case 'rating':
+        sortCriteria = { 'rating.average': -1 };
+        break;
+      case 'newest':
+        sortCriteria = { createdAt: -1 };
+        break;
+      default:
+        sortCriteria = { featured: -1, 'rating.average': -1 };
+    }
+
+    // Get products and total count
+    const [products, totalCount] = await Promise.all([
+      db.collection('products')
+        .find(searchFilter)
+        .sort(sortCriteria)
+        .skip(skip)
+        .limit(searchLimit)
+        .toArray(),
+      db.collection('products').countDocuments(searchFilter)
+    ]);
+
+    // Get suggestions if requested
+    let suggestions = [];
+    if (includeSuggestions === 'true') {
+      suggestions = await db.collection('products').aggregate([
+        {
+          $match: {
+            isActive: true,
+            $or: [
+              { 'name.en': { $regex: searchTerm, $options: 'i' } },
+              { 'description.en': { $regex: searchTerm, $options: 'i' } }
+            ]
+          }
+        },
+        {
+          $project: {
+            text: '$name.en',
+            type: 'product'
+          }
+        },
+        { $limit: 5 }
+      ]).toArray();
+    }
 
     res.json({
       success: true,
-      products: searchResults.products,
-      total: searchResults.total,
-      suggestions: searchResults.suggestions,
-      correctedQuery: searchResults.correctedQuery,
-      isTypoCorrected: searchResults.isTypoCorrected
+      results: products,
+      totalFound: totalCount,
+      suggestions: suggestions,
+      query: q
     });
   } catch (error) {
     console.error('❌ Error in smart search:', error);
@@ -804,14 +897,46 @@ app.get('/products/autocomplete', async (req, res) => {
       });
     }
 
-    if (!smartSearchService) {
-      return res.status(503).json({ 
-        success: false, 
-        error: 'Search service not available' 
-      });
-    }
-
-    const suggestions = await smartSearchService.getAutocompleteSuggestions(q, parseInt(limit));
+    // Improved autocomplete with better matching logic
+    const searchTerm = q.toLowerCase().trim();
+    const suggestions = await db.collection('products').aggregate([
+      {
+        $match: {
+          isActive: true,
+          $or: [
+            // Prioritize matches at the beginning of product names
+            { 'name.en': { $regex: `^${searchTerm}`, $options: 'i' } },
+            // Then matches at the beginning of words in product names
+            { 'name.en': { $regex: `\\b${searchTerm}`, $options: 'i' } },
+            // Finally, matches in descriptions (lower priority)
+            { 'description.en': { $regex: `\\b${searchTerm}`, $options: 'i' } }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          // Add scoring for better relevance
+          score: {
+            $switch: {
+              branches: [
+                { case: { $regexMatch: { input: '$name.en', regex: `^${searchTerm}`, options: 'i' } }, then: 3 },
+                { case: { $regexMatch: { input: '$name.en', regex: `\\b${searchTerm}`, options: 'i' } }, then: 2 },
+                { case: { $regexMatch: { input: '$description.en', regex: `\\b${searchTerm}`, options: 'i' } }, then: 1 }
+              ],
+              default: 0
+            }
+          }
+        }
+      },
+      { $sort: { score: -1, 'name.en': 1 } },
+      {
+        $project: {
+          suggestion: '$name.en',
+          type: 'product'
+        }
+      },
+      { $limit: parseInt(limit) }
+    ]).toArray();
     
     res.json({
       success: true,

@@ -63,7 +63,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
       clearTimeout(debounceRef.current);
     }
 
-    if (query.length >= 2) {
+    if ((query?.length ?? 0) >= 2) {
       debounceRef.current = setTimeout(() => {
         fetchAutoComplete(query);
       }, 300);
@@ -129,7 +129,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
     setQuery(value);
     setActiveIndex(-1);
     
-    if (value.length >= 2) {
+    if ((value?.length ?? 0) >= 2) {
       setShowSuggestions(true);
     } else {
       setShowSuggestions(false);
@@ -138,16 +138,16 @@ function SmartSearch({ onSearchResults, className = '' }) {
 
   // Handle key navigation
   const handleKeyDown = (e) => {
-    if (!showSuggestions || suggestions.length === 0) return;
+    if (!showSuggestions || (suggestions?.length ?? 0) === 0) return;
 
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex(prev => (prev + 1) % suggestions.length);
+        setActiveIndex(prev => (prev + 1) % (suggestions?.length ?? 1));
         break;
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex(prev => (prev - 1 + suggestions.length) % suggestions.length);
+        setActiveIndex(prev => (prev - 1 + (suggestions?.length ?? 1)) % (suggestions?.length ?? 1));
         break;
       case 'Enter':
         e.preventDefault();
@@ -175,7 +175,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
 
   // Handle focus
   const handleFocus = () => {
-    if (query.length >= 2) {
+    if ((query?.length ?? 0) >= 2) {
       setShowSuggestions(true);
     }
   };
@@ -231,10 +231,10 @@ function SmartSearch({ onSearchResults, className = '' }) {
           className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-96 overflow-y-auto z-50"
         >
           {/* Autocomplete suggestions */}
-          {suggestions.length > 0 && (
+          {suggestions?.length > 0 && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-500">Suggestions</div>
-              {suggestions.map((suggestion, index) => (
+              {(suggestions || []).map((suggestion, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
@@ -257,10 +257,10 @@ function SmartSearch({ onSearchResults, className = '' }) {
           )}
 
           {/* Recent searches */}
-          {recentSearches.length > 0 && query.length < 2 && (
+          {recentSearches?.length > 0 && (query?.length ?? 0) < 2 && (
             <div className="border-b border-gray-100">
               <div className="px-4 py-2 text-sm font-medium text-gray-500">Recent Searches</div>
-              {recentSearches.map((search, index) => (
+              {(recentSearches || []).map((search, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: search })}
@@ -278,10 +278,10 @@ function SmartSearch({ onSearchResults, className = '' }) {
           )}
 
           {/* Trending searches */}
-          {trendingSearches.length > 0 && query.length < 2 && (
+          {trendingSearches?.length > 0 && (query?.length ?? 0) < 2 && (
             <div>
               <div className="px-4 py-2 text-sm font-medium text-gray-500">Trending</div>
-              {trendingSearches.map((trend, index) => (
+              {(trendingSearches || []).map((trend, index) => (
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick({ text: trend.term })}
@@ -302,7 +302,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
           )}
 
           {/* Empty state */}
-          {suggestions.length === 0 && query.length >= 2 && (
+          {(suggestions?.length ?? 0) === 0 && (query?.length ?? 0) >= 2 && (
             <div className="px-4 py-6 text-center text-gray-500">
               <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
