@@ -13,12 +13,39 @@ function Products() {
   // Get products from API
   useEffect(() => {
     axios.get('http://localhost:3003/products')
-      .then(res => setProducts(res.data.products || res.data))
+      .then(res => {
+        const productsData = res.data.products || res.data;
+        setProducts(productsData);
+      })
       .catch(err => console.error('❌ Error fetching products:', err));
   }, []);
 
   const handleViewDetails = (productName) => {
     alert(`ℹ️ Details for: ${productName}`);
+  };
+
+  // Helper function to get primary product image
+  const getProductImage = (product) => {
+    if (product.images && product.images.length > 0) {
+      const primaryImage = product.images.find(img => img.isPrimary) || product.images[0];
+      return primaryImage.url;
+    }
+    return '/images/products/default.jpg'; // Fallback image
+  };
+
+  // Helper function to get product name in English
+  const getProductName = (product) => {
+    return product.name?.en || product.ItemName || 'Unnamed Product';
+  };
+
+  // Helper function to get product price
+  const getProductPrice = (product) => {
+    return product.pricing?.price || product.Price || 0;
+  };
+
+  // Helper function to get category name for filtering
+  const getProductCategory = (product) => {
+    return product.categoryId?.name?.en || product.CategoryName || '';
   };
 
   return (
@@ -31,24 +58,49 @@ function Products() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {products
-            .filter(p => p.CategoryName === category) // or use p.category depending on your DB schema
+            .filter(p => getProductCategory(p) === category) // Filter by category
             .map(product => (
-              <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col">
-                <img
-                  src={product.PhotoPath}
-                  alt={product.ItemName}
-                  className="w-full h-48 object-contain object-center bg-white"
-                />
+              <div key={product._id || product.id} className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col group">
+                <div className="overflow-hidden">
+                  <img
+                    src={getProductImage(product)}
+                    alt={getProductName(product)}
+                    className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                    onError={(e) => {
+                      e.target.src = '/images/products/default.jpg';
+                    }}
+                  />
+                </div>
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="text-lg font-semibold">{product.ItemName}</h4>
-                    <p className="text-secondary font-bold">EGP {product.Price}</p>
+                    <h4 className="text-lg font-semibold mb-2">{getProductName(product)}</h4>
+                    {product.shortDescription?.en && (
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+                        {product.shortDescription.en}
+                      </p>
+                    )}
+                    <p className="text-secondary font-bold text-xl">
+                      EGP {getProductPrice(product).toLocaleString()}
+                    </p>
+                    {product.pricing?.comparePrice && product.pricing.comparePrice > product.pricing.price && (
+                      <p className="text-gray-500 line-through text-sm">
+                        EGP {product.pricing.comparePrice.toLocaleString()}
+                      </p>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2 mt-3">
+                  <div className="flex flex-col gap-2 mt-4">
                     <button
                       onClick={() => {
-                        dispatch({ type: 'ADD', payload: product });
-                        setToastMsg(`${product.ItemName} added to cart!`);
+                        dispatch({ 
+                          type: 'ADD', 
+                          payload: {
+                            id: product._id || product.id,
+                            name: getProductName(product),
+                            price: `EGP ${getProductPrice(product)}`,
+                            image: getProductImage(product)
+                          }
+                        });
+                        setToastMsg(`${getProductName(product)} added to cart!`);
                         setTimeout(() => setToastMsg(''), 3000);
                       }}
                       className="bg-primary text-white py-2 px-4 rounded hover:bg-secondary transition"
@@ -56,7 +108,7 @@ function Products() {
                       Add to Cart
                     </button>
                     <button
-                      onClick={() => handleViewDetails(product.ItemName)}
+                      onClick={() => handleViewDetails(getProductName(product))}
                       className="border border-primary text-primary py-2 px-4 rounded hover:bg-primary hover:text-white transition"
                     >
                       View Details
@@ -66,6 +118,13 @@ function Products() {
               </div>
             ))}
         </div>
+        
+        {products.filter(p => getProductCategory(p) === category).length === 0 && (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No products found</h3>
+            <p className="text-gray-500">No products available in this category yet.</p>
+          </div>
+        )}
       </div>
     </>
   );

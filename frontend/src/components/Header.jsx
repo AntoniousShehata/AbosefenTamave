@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import logo from '../pictures/logo.jpg';
 import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
+import SmartSearch from './SmartSearch';
 
 function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -19,11 +19,16 @@ function Header() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-2xl font-bold tracking-wide">
           <img
-            src={logo}
-            alt="Logo"
+            src="/images/logo.jpg"
+            alt="Abosefen & TamaveIrini Logo"
             className="w-10 h-10 object-contain rounded-full"
           />
           <span>Abosefen & TamaveIrini</span>
+        </div>
+
+        {/* Smart Search */}
+        <div className="hidden md:block flex-1 max-w-xl mx-8">
+          <SmartSearch className="w-full" />
         </div>
 
         <nav className="hidden md:flex gap-6 text-lg items-center">

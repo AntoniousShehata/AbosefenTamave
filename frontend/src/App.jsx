@@ -6,6 +6,9 @@ import Header from './components/Header';
 import ProtectedRoute from './components/ProtectedRoute';
 import ProductsPage from './pages/ProductsPage';
 import Products from './pages/Products';
+import CategoryProducts from './pages/CategoryProducts';
+import ProductDetails from './pages/ProductDetails';
+import SearchResults from './pages/SearchResults';
 import Home from './pages/Home';
 import Contact from './pages/Contact';
 import Cart from './pages/Cart';
@@ -24,6 +27,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/products" element={<ProductsPage />} />
             <Route path="/products/:category" element={<Products />} />
+            <Route path="/products/category/:categoryId" element={<CategoryProducts />} />
+            <Route path="/products/details/:slug" element={<ProductDetails />} />
+            <Route path="/search" element={<SearchResults />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/checkout" element={<Checkout />} />

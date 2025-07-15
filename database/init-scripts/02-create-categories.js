@@ -1,383 +1,281 @@
-// Product catalog database setup
+// Enhanced Product catalog database setup for E-commerce
 use('abosefen-catalog');
 
-// Main Categories for Abosefen Sanitaryware Business
+// Drop existing categories collection to start fresh
+db.categories.drop();
+
+// Main Categories for Abosefen Sanitaryware E-commerce Business
 const categories = [
   {
+    _id: "bathroom-fittings",
     name: { 
       en: "Bathroom Fittings", 
       ar: "تجهيزات الحمام" 
     },
     description: {
-      en: "Complete range of bathroom fixtures, fittings and accessories",
-      ar: "مجموعة كاملة من تجهيزات وأدوات ومستلزمات الحمام"
+      en: "Complete range of bathroom fixtures, fittings and accessories for modern bathrooms",
+      ar: "مجموعة كاملة من تجهيزات وأدوات ومستلزمات الحمام للحمامات المعاصرة"
     },
     slug: "bathroom-fittings",
     parentId: null,
     level: 1,
-    image: "/images/categories/bathroom.jpg",
+    image: "/images/categories/BATHROOM_FITTINGS.jpg",
     icon: "bathroom-icon.svg",
     sortOrder: 1,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Bathroom Fittings - Abosefen",
-        ar: "تجهيزات الحمام - أبوسيفين"
+        en: "Bathroom Fittings - Premium Quality | Abosefen",
+        ar: "تجهيزات الحمام - جودة فاخرة | أبوسيفين"
       },
       metaDescription: {
-        en: "Premium bathroom fittings and accessories for modern homes",
-        ar: "تجهيزات حمامات عالية الجودة ومستلزماتها للمنازل العصرية"
+        en: "Discover our premium bathroom fittings collection including basins, mixers, and accessories. Quality guaranteed.",
+        ar: "اكتشف مجموعتنا من تجهيزات الحمام الفاخرة بما في ذلك الأحواض والخلاطات والاكسسوارات. جودة مضمونة."
       },
-      keywords: ["bathroom", "fittings", "حمام", "تجهيزات", "صنابير"]
+      keywords: {
+        en: ["bathroom", "fittings", "basin", "mixer", "premium", "abosefen"],
+        ar: ["حمام", "تجهيزات", "حوض", "خلاط", "فاخر", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+  
   {
+    _id: "kitchen-fittings",
     name: { 
       en: "Kitchen Fittings", 
       ar: "تجهيزات المطبخ" 
     },
     description: {
-      en: "Kitchen sinks, faucets, and fittings for modern kitchens",
-      ar: "أحواض المطبخ والصنابير والتجهيزات للمطابخ العصرية"
+      en: "Professional kitchen fixtures and fittings for modern culinary spaces",
+      ar: "تجهيزات وأدوات مطبخ احترافية للمساحات الطبخ العصرية"
     },
     slug: "kitchen-fittings",
     parentId: null,
     level: 1,
-    image: "/images/categories/kitchen.jpg",
-    icon: "kitchen-icon.svg", 
+    image: "/images/categories/KITCHEN_FITTINGS.jpg",
+    icon: "kitchen-icon.svg",
     sortOrder: 2,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Kitchen Fittings - Abosefen",
-        ar: "تجهيزات المطبخ - أبوسيفين"
+        en: "Kitchen Fittings - Professional Grade | Abosefen",
+        ar: "تجهيزات المطبخ - درجة احترافية | أبوسيفين"
       },
       metaDescription: {
-        en: "High-quality kitchen sinks, faucets and accessories",
-        ar: "أحواض المطبخ والصنابير والمستلزمات عالية الجودة"
+        en: "Professional kitchen fittings including sinks, mixers, and accessories for your dream kitchen.",
+        ar: "تجهيزات مطبخ احترافية تشمل الأحواض والخلاطات والاكسسوارات لمطبخ أحلامك."
       },
-      keywords: ["kitchen", "sink", "faucet", "مطبخ", "حوض", "صنبور"]
+      keywords: {
+        en: ["kitchen", "fittings", "sink", "mixer", "professional", "abosefen"],
+        ar: ["مطبخ", "تجهيزات", "حوض", "خلاط", "احترافي", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+
   {
+    _id: "ceramics",
     name: { 
-      en: "Ceramics", 
-      ar: "السيراميك" 
+      en: "Ceramics & Tiles", 
+      ar: "السيراميك والبلاط" 
     },
     description: {
-      en: "Premium ceramic tiles, basins, and sanitaryware",
-      ar: "بلاط السيراميك الفاخر والأحواض والأدوات الصحية"
+      en: "Premium ceramic tiles and porcelain for floors, walls, and decorative applications",
+      ar: "بلاط سيراميك وبورسلين فاخر للأرضيات والجدران والتطبيقات الزخرفية"
     },
     slug: "ceramics",
     parentId: null,
     level: 1,
-    image: "/images/categories/ceramics.jpg",
+    image: "/images/categories/CERAMIC.jpg",
     icon: "ceramic-icon.svg",
     sortOrder: 3,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Ceramics & Tiles - Abosefen",
-        ar: "السيراميك والبلاط - أبوسيفين"
+        en: "Ceramic Tiles - Premium Collection | Abosefen",
+        ar: "بلاط سيراميك - مجموعة فاخرة | أبوسيفين"
       },
       metaDescription: {
-        en: "Premium ceramic tiles and sanitaryware for bathrooms and kitchens",
-        ar: "بلاط السيراميك الفاخر والأدوات الصحية للحمامات والمطابخ"
+        en: "Explore our premium ceramic tiles collection with various designs and finishes for every space.",
+        ar: "استكشف مجموعة بلاط السيراميك الفاخرة مع تصاميم ولمسات نهائية متنوعة لكل مساحة."
       },
-      keywords: ["ceramic", "tiles", "basin", "سيراميك", "بلاط", "حوض"]
+      keywords: {
+        en: ["ceramic", "tiles", "porcelain", "floor", "wall", "abosefen"],
+        ar: ["سيراميك", "بلاط", "بورسلين", "أرضية", "جدار", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+
   {
+    _id: "bathtubs",
     name: { 
       en: "Bathtubs", 
       ar: "أحواض الاستحمام" 
     },
     description: {
-      en: "Luxury bathtubs and shower enclosures for relaxation",
-      ar: "أحواض الاستحمام الفاخرة وكبائن الدش للاسترخاء"
+      en: "Luxury bathtubs including freestanding, built-in, and corner models",
+      ar: "أحواض استحمام فاخرة تشمل النماذج المنفصلة والمدمجة والزاوية"
     },
     slug: "bathtubs",
     parentId: null,
     level: 1,
-    image: "/images/categories/bathtubs.jpg", 
+    image: "/images/categories/BATHTUBS.jpg",
     icon: "bathtub-icon.svg",
     sortOrder: 4,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Bathtubs & Showers - Abosefen",
-        ar: "أحواض الاستحمام والدش - أبوسيفين"
+        en: "Luxury Bathtubs - Premium Collection | Abosefen",
+        ar: "أحواض استحمام فاخرة - مجموعة مميزة | أبوسيفين"
       },
       metaDescription: {
-        en: "Luxury bathtubs and modern shower solutions",
-        ar: "أحواض استحمام فاخرة وحلول دش عصرية"
+        en: "Discover our luxury bathtub collection featuring freestanding, built-in, and corner designs.",
+        ar: "اكتشف مجموعة أحواض الاستحمام الفاخرة التي تضم تصاميم منفصلة ومدمجة وزاوية."
       },
-      keywords: ["bathtub", "shower", "حوض استحمام", "دش", "استحمام"]
+      keywords: {
+        en: ["bathtub", "luxury", "freestanding", "acrylic", "spa", "abosefen"],
+        ar: ["حوض استحمام", "فاخر", "منفصل", "أكريليك", "سبا", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+
   {
+    _id: "accessories",
     name: { 
-      en: "Toilets", 
-      ar: "المراحيض" 
+      en: "Bathroom Accessories", 
+      ar: "اكسسوارات الحمام" 
     },
     description: {
-      en: "Modern toilet suites, bidets and WC accessories",
-      ar: "أطقم المراحيض العصرية والبيديهات ومستلزمات دورات المياه"
-    },
-    slug: "toilets",
-    parentId: null,
-    level: 1,
-    image: "/images/categories/toilets.jpg",
-    icon: "toilet-icon.svg",
-    sortOrder: 5,
-    seo: {
-      metaTitle: {
-        en: "Toilets & Bidets - Abosefen",
-        ar: "المراحيض والبيديهات - أبوسيفين"
-      },
-      metaDescription: {
-        en: "Modern toilet suites and bidet solutions for contemporary bathrooms",
-        ar: "أطقم المراحيض العصرية وحلول البيديه للحمامات المعاصرة"
-      },
-      keywords: ["toilet", "bidet", "WC", "مرحاض", "بيديه", "دورة مياه"]
-    },
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    name: { 
-      en: "Accessories", 
-      ar: "الإكسسوارات" 
-    },
-    description: {
-      en: "Bathroom and kitchen accessories, towel rails, soap dispensers",
-      ar: "مستلزمات الحمام والمطبخ وعلاقات المناشف وموزعات الصابون"
+      en: "Complete range of bathroom accessories and hardware for finishing touches",
+      ar: "مجموعة كاملة من اكسسوارات ومعدات الحمام للمسات الأخيرة"
     },
     slug: "accessories",
     parentId: null,
     level: 1,
-    image: "/images/categories/accessories.jpg",
+    image: "/images/categories/ACCESSORIES.jpg",
     icon: "accessories-icon.svg",
-    sortOrder: 6,
+    sortOrder: 5,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Bathroom Accessories - Abosefen",
-        ar: "إكسسوارات الحمام - أبوسيفين"
+        en: "Bathroom Accessories - Complete Sets | Abosefen",
+        ar: "اكسسوارات الحمام - أطقم كاملة | أبوسيفين"
       },
       metaDescription: {
-        en: "Complete range of bathroom and kitchen accessories",
-        ar: "مجموعة كاملة من إكسسوارات الحمام والمطبخ"
+        en: "Complete your bathroom with our premium accessories including towel bars, hooks, and dispensers.",
+        ar: "أكمل حمامك بأكسسواراتنا الفاخرة بما في ذلك حاملات المناشف والخطافات والموزعات."
       },
-      keywords: ["accessories", "towel rail", "soap dispenser", "إكسسوارات", "علاقة مناشف"]
+      keywords: {
+        en: ["accessories", "bathroom", "towel bar", "hooks", "premium", "abosefen"],
+        ar: ["اكسسوارات", "حمام", "حامل مناشف", "خطافات", "فاخر", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+
   {
+    _id: "prewall-systems",
     name: { 
       en: "Prewall Systems", 
-      ar: "أنظمة الجدار المسبق" 
+      ar: "أنظمة ما قبل الجدار" 
     },
     description: {
-      en: "Concealed cisterns and prewall installation systems",
-      ar: "خزانات الشطف المخفية وأنظمة التركيب المسبق"
+      en: "Advanced concealed installation systems for modern, minimalist bathroom designs",
+      ar: "أنظمة تركيب مخفية متقدمة لتصاميم الحمام العصرية والبسيطة"
     },
     slug: "prewall-systems",
     parentId: null,
     level: 1,
-    image: "/images/categories/prewall.jpg",
+    image: "/images/categories/PREWALL.jpg",
     icon: "prewall-icon.svg",
-    sortOrder: 7,
+    sortOrder: 6,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Prewall Systems - Abosefen",
-        ar: "أنظمة الجدار المسبق - أبوسيفين"
+        en: "Prewall Systems - Concealed Installation | Abosefen",
+        ar: "أنظمة ما قبل الجدار - تركيب مخفي | أبوسيفين"
       },
       metaDescription: {
-        en: "Modern concealed cistern and prewall installation systems",
-        ar: "أنظمة خزانات الشطف المخفية والتركيب المسبق العصرية"
+        en: "Advanced prewall systems for concealed toilet and basin installations. Space-saving solutions.",
+        ar: "أنظمة متقدمة ما قبل الجدار لتركيبات المراحيض والأحواض المخفية. حلول موفرة للمساحة."
       },
-      keywords: ["prewall", "concealed cistern", "جدار مسبق", "خزان مخفي"]
+      keywords: {
+        en: ["prewall", "concealed", "installation", "space-saving", "modern", "abosefen"],
+        ar: ["ما قبل الجدار", "مخفي", "تركيب", "توفير مساحة", "عصري", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   },
+
   {
+    _id: "furniture",
     name: { 
-      en: "Furniture", 
-      ar: "الأثاث" 
+      en: "Bathroom Furniture", 
+      ar: "أثاث الحمام" 
     },
     description: {
-      en: "Bathroom furniture, vanity units and storage solutions",
-      ar: "أثاث الحمام ووحدات الزينة وحلول التخزين"
+      en: "Modern bathroom furniture including vanities, cabinets, and storage solutions",
+      ar: "أثاث حمام عصري يشمل الخزائن وحلول التخزين"
     },
     slug: "furniture",
     parentId: null,
     level: 1,
-    image: "/images/categories/furniture.jpg",
+    image: "/images/categories/FURNITURE.jpg",
     icon: "furniture-icon.svg",
-    sortOrder: 8,
+    sortOrder: 7,
+    isActive: true,
+    showOnHomepage: true,
+    productCount: 0,
     seo: {
       metaTitle: {
-        en: "Bathroom Furniture - Abosefen",
-        ar: "أثاث الحمام - أبوسيفين"
+        en: "Bathroom Furniture - Modern Designs | Abosefen",
+        ar: "أثاث الحمام - تصاميم عصرية | أبوسيفين"
       },
       metaDescription: {
-        en: "Modern bathroom furniture and storage solutions",
-        ar: "أثاث الحمام العصري وحلول التخزين"
+        en: "Modern bathroom furniture with vanities, mirrors, and storage solutions for stylish bathrooms.",
+        ar: "أثاث حمام عصري مع خزائن ومرايا وحلول تخزين للحمامات الأنيقة."
       },
-      keywords: ["furniture", "vanity", "storage", "أثاث", "خزانة", "تخزين"]
+      keywords: {
+        en: ["furniture", "bathroom", "vanity", "storage", "modern", "abosefen"],
+        ar: ["أثاث", "حمام", "خزانة", "تخزين", "عصري", "أبوسيفين"]
+      }
     },
-    isActive: true,
     createdAt: new Date(),
     updatedAt: new Date()
   }
 ];
 
-// Insert categories
+// Insert all categories
 db.categories.insertMany(categories);
 
-// Get category IDs for subcategories
-const bathroomCategory = db.categories.findOne({ slug: "bathroom-fittings" });
-const kitchenCategory = db.categories.findOne({ slug: "kitchen-fittings" });
-const ceramicsCategory = db.categories.findOne({ slug: "ceramics" });
+// Create indexes for better performance
+db.categories.createIndex({ "slug": 1 }, { unique: true });
+db.categories.createIndex({ "_id": 1 });
+db.categories.createIndex({ "isActive": 1 });
+db.categories.createIndex({ "showOnHomepage": 1 });
+db.categories.createIndex({ "sortOrder": 1 });
 
-// Add subcategories
-const subcategories = [
-  // Bathroom subcategories
-  {
-    name: { en: "Sink Basins", ar: "أحواض الغسيل" },
-    slug: "sink-basins",
-    parentId: bathroomCategory._id,
-    level: 2,
-    sortOrder: 1,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    name: { en: "Faucets & Taps", ar: "الصنابير والحنفيات" },
-    slug: "faucets-taps",
-    parentId: bathroomCategory._id,
-    level: 2,
-    sortOrder: 2,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    name: { en: "Shower Mixers", ar: "خلاطات الدش" },
-    slug: "shower-mixers",
-    parentId: bathroomCategory._id,
-    level: 2,
-    sortOrder: 3,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  // Kitchen subcategories
-  {
-    name: { en: "Kitchen Sinks", ar: "أحواض المطبخ" },
-    slug: "kitchen-sinks",
-    parentId: kitchenCategory._id,
-    level: 2,
-    sortOrder: 1,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    name: { en: "Kitchen Mixers", ar: "خلاطات المطبخ" },
-    slug: "kitchen-mixers",
-    parentId: kitchenCategory._id,
-    level: 2,
-    sortOrder: 2,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  // Ceramics subcategories
-  {
-    name: { en: "Wall Tiles", ar: "بلاط الحوائط" },
-    slug: "wall-tiles",
-    parentId: ceramicsCategory._id,
-    level: 2,
-    sortOrder: 1,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    name: { en: "Floor Tiles", ar: "بلاط الأرضيات" },
-    slug: "floor-tiles",
-    parentId: ceramicsCategory._id,
-    level: 2,
-    sortOrder: 2,
-    isActive: true,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
-
-db.categories.insertMany(subcategories);
-
-// Create indexes for categories collection
-db.categories.createIndex({ slug: 1 }, { unique: true });
-db.categories.createIndex({ parentId: 1 });
-db.categories.createIndex({ level: 1 });
-db.categories.createIndex({ sortOrder: 1 });
-db.categories.createIndex({ isActive: 1 });
-
-// Create indexes for products collection
-db.products.createIndex({ sku: 1 }, { unique: true });
-db.products.createIndex({ categoryId: 1 });
-db.products.createIndex({ categoryPath: 1 });
-db.products.createIndex({ status: 1 });
-db.products.createIndex({ "pricing.price": 1 });
-db.products.createIndex({ brand: 1 });
-db.products.createIndex({ tags: 1 });
-db.products.createIndex({ isFeatured: 1 });
-db.products.createIndex({ "stats.rating": -1 });
-db.products.createIndex({ createdAt: -1 });
-
-// Text search index for multilingual search
-db.products.createIndex({
-  "name.en": "text",
-  "name.ar": "text", 
-  "description.en": "text",
-  "description.ar": "text",
-  "features.en": "text",
-  "features.ar": "text",
-  tags: "text"
-}, {
-  weights: {
-    "name.en": 10,
-    "name.ar": 10,
-    "description.en": 5,
-    "description.ar": 5,
-    "features.en": 3,
-    "features.ar": 3,
-    tags: 2
-  },
-  name: "product_text_search"
-});
-
-// Create indexes for reviews collection
-db.reviews.createIndex({ productId: 1 });
-db.reviews.createIndex({ userId: 1 });
-db.reviews.createIndex({ status: 1 });
-db.reviews.createIndex({ rating: 1 });
-db.reviews.createIndex({ createdAt: -1 });
-
-print(`✅ Catalog database initialized with ${categories.length} main categories and ${subcategories.length} subcategories`); 
+console.log(`✅ Created ${categories.length} comprehensive categories for e-commerce`);
+console.log("✅ Added database indexes for optimal performance");
+console.log("✅ Categories structure ready for product relationships!"); 
