@@ -339,7 +339,8 @@ app.post('/auth/register', [
     res.status(201).json({
       message: 'User registered successfully',
       user: userResponse,
-      tokens
+      token: tokens.accessToken,
+      refreshToken: tokens.refreshToken
     });
 
   } catch (error) {
@@ -413,7 +414,8 @@ app.post('/auth/login', [
     res.json({
       message: 'Login successful',
       user: userResponse,
-      tokens
+      token: tokens.accessToken,
+      refreshToken: tokens.refreshToken
     });
 
   } catch (error) {
@@ -616,6 +618,32 @@ app.post('/auth/verify', async (req, res) => {
       valid: false,
       error: 'Invalid token',
       code: 'INVALID_TOKEN'
+    });
+  }
+});
+
+// Temporary admin endpoint to list users (for password recovery)
+app.get('/admin/users', async (req, res) => {
+  try {
+    const users = await User.find({}, {
+      email: 1,
+      'profile.firstName': 1,
+      'profile.lastName': 1,
+      role: 1,
+      isActive: 1,
+      createdAt: 1,
+      _id: 0
+    }).sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      users: users,
+      total: users.length
+    });
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({
+      error: 'Failed to fetch users'
     });
   }
 });
