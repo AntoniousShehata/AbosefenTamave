@@ -35,8 +35,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(morgan('combined'));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true }));
+// Remove global express.json() and express.urlencoded() here
+// app.use(express.json({ limit: '10mb' }));
+// app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -52,6 +53,18 @@ const authLimiter = rateLimit({
   max: 20, // limit each IP to 20 auth requests per windowMs
   message: 'Too many authentication attempts, please try again later'
 });
+
+// === Place these IMMEDIATELY after rate limiters ===
+app.use('/api/auth/register', authLimiter, createProxyMiddleware({ 
+  target: config.services.auth, 
+  changeOrigin: true, 
+  pathRewrite: { '^/api/auth': '/auth' }
+}));
+app.use('/api/auth/login', authLimiter, createProxyMiddleware({ 
+  target: config.services.auth, 
+  changeOrigin: true, 
+  pathRewrite: { '^/api/auth': '/auth' }
+}));
 
 // JWT Verification Middleware
 const verifyToken = (req, res, next) => {
@@ -79,7 +92,8 @@ const verifyAdmin = (req, res, next) => {
   next();
 };
 
-// Health check endpoint
+// Health check endpoint (apply body parsing only here)
+app.use('/health', express.json(), express.urlencoded({ extended: true }));
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy', 
@@ -115,120 +129,87 @@ app.get('/health/services', async (req, res) => {
   res.json({ healthChecks, timestamp: new Date().toISOString() });
 });
 
-// Proxy Configuration
-const createProxy = (target, options = {}) => {
-  return createProxyMiddleware({
-    target,
-    changeOrigin: true,
-    timeout: 30000,
-    proxyTimeout: 30000,
-    onError: (err, req, res) => {
-      console.error(`Proxy Error for ${req.url}:`, err.message);
-      res.status(503).json({ 
-        error: 'Service temporarily unavailable',
-        service: target,
-        timestamp: new Date().toISOString()
-      });
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      // Add correlation ID for request tracking
-      const correlationId = req.headers['x-correlation-id'] || 
-                           `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      proxyReq.setHeader('x-correlation-id', correlationId);
-      
-      // Forward user information to services
-      if (req.user) {
-        proxyReq.setHeader('x-user-id', req.user.id);
-        proxyReq.setHeader('x-user-role', req.user.role);
-        proxyReq.setHeader('x-user-email', req.user.email);
-      }
-      
-      console.log(`Proxying ${req.method} ${req.url} to ${target} (Correlation ID: ${correlationId})`);
-    },
-    onProxyRes: (proxyRes, req, res) => {
-      // Add correlation ID to response
-      const correlationId = req.headers['x-correlation-id'];
-      if (correlationId) {
-        proxyRes.headers['x-correlation-id'] = correlationId;
-      }
-    },
-    ...options
-  });
-};
-
 // API Routes
 
 // Authentication Service (Public endpoints)
-app.use('/api/auth/register', authLimiter, createProxy(config.services.auth, {
-  pathRewrite: { '^/api/auth': '/api' }
-}));
-
-app.use('/api/auth/login', authLimiter, createProxy(config.services.auth, {
-  pathRewrite: { '^/api/auth': '/api' }
-}));
-
-app.use('/api/auth/refresh', authLimiter, createProxy(config.services.auth, {
-  pathRewrite: { '^/api/auth': '/api' }
+app.use('/api/auth/refresh', authLimiter, createProxyMiddleware({
+  target: config.services.auth,
+  changeOrigin: true,
+  pathRewrite: { '^/api/auth': '/auth' }
 }));
 
 // All other auth endpoints require authentication
-app.use('/api/auth', verifyToken, createProxy(config.services.auth, {
-  pathRewrite: { '^/api/auth': '/api' }
+app.use('/api/auth', verifyToken, createProxyMiddleware({
+  target: config.services.auth,
+  changeOrigin: true,
+  pathRewrite: { '^/api/auth': '/auth' }
 }));
 
 // User Service (Protected endpoints)
-app.use('/api/users', verifyToken, createProxy(config.services.user, {
+app.use('/api/users', verifyToken, createProxyMiddleware({
+  target: config.services.user,
+  changeOrigin: true,
   pathRewrite: { '^/api/users': '/api' }
 }));
 
 // Product Service (Public read, protected write)
-app.use('/api/products/search', createProxy(config.services.product, {
+app.use('/api/products/search', createProxyMiddleware({
+  target: config.services.product,
+  changeOrigin: true,
   pathRewrite: { '^/api/products': '/api' }
 }));
 
 app.use('/api/products/:id', (req, res, next) => {
   if (req.method === 'GET') {
-    // Public read access
     next();
   } else {
-    // Protected write access
     verifyToken(req, res, next);
   }
-}, createProxy(config.services.product, {
+}, createProxyMiddleware({
+  target: config.services.product,
+  changeOrigin: true,
   pathRewrite: { '^/api/products': '/api' }
 }));
 
 app.use('/api/products', (req, res, next) => {
   if (req.method === 'GET') {
-    // Public read access for product listing
     next();
   } else {
-    // Protected access for creating/updating products
     verifyToken(req, res, () => {
       verifyAdmin(req, res, next);
     });
   }
-}, createProxy(config.services.product, {
+}, createProxyMiddleware({
+  target: config.services.product,
+  changeOrigin: true,
   pathRewrite: { '^/api/products': '/api' }
 }));
 
 // Order Service (Protected endpoints)
-app.use('/api/orders', verifyToken, createProxy(config.services.order, {
+app.use('/api/orders', verifyToken, createProxyMiddleware({
+  target: config.services.order,
+  changeOrigin: true,
   pathRewrite: { '^/api/orders': '/api' }
 }));
 
 // Payment Service (Protected endpoints)
-app.use('/api/payments', verifyToken, createProxy(config.services.payment, {
+app.use('/api/payments', verifyToken, createProxyMiddleware({
+  target: config.services.payment,
+  changeOrigin: true,
   pathRewrite: { '^/api/payments': '/api' }
 }));
 
 // Notification Service (Protected endpoints)
-app.use('/api/notifications', verifyToken, createProxy(config.services.notification, {
+app.use('/api/notifications', verifyToken, createProxyMiddleware({
+  target: config.services.notification,
+  changeOrigin: true,
   pathRewrite: { '^/api/notifications': '/api' }
 }));
 
 // Admin Service (Admin only endpoints)
-app.use('/api/admin', verifyToken, verifyAdmin, createProxy(config.services.admin, {
+app.use('/api/admin', verifyToken, verifyAdmin, createProxyMiddleware({
+  target: config.services.admin,
+  changeOrigin: true,
   pathRewrite: { '^/api/admin': '/api' }
 }));
 
