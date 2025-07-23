@@ -49,7 +49,7 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/auth';
 
   // Load user from localStorage on component mount
   useEffect(() => {
@@ -77,7 +77,7 @@ export function AuthProvider({ children }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await axios.post(`${API_BASE}/auth/login`, {
+      const response = await axios.post(`${API_BASE}/login`, {
         email,
         password
       });
@@ -97,9 +97,10 @@ export function AuthProvider({ children }) {
       });
 
       return { success: true, user };
+      
     } catch (error) {
       dispatch({ type: 'SET_LOADING', payload: false });
-      const errorMessage = error.response?.data?.error || 'Login failed';
+      const errorMessage = error.response?.data?.error || error.response?.data?.message || 'Login failed';
       return { success: false, error: errorMessage };
     }
   };
@@ -108,7 +109,7 @@ export function AuthProvider({ children }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await axios.post(`${API_BASE}/auth/register`, userData);
+      const response = await axios.post(`${API_BASE}/register`, userData);
       
       const { user, token } = response.data;
 

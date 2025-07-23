@@ -16,11 +16,63 @@ function AdminDashboardHome() {
 
   const loadDashboardData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/admin/dashboard');
-      setStats(response.data.stats);
-      setRecentOrders(response.data.recentOrders);
+      // Real API calls to get dashboard statistics
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      
+      // Get real data from multiple endpoints
+      const [productsResponse, ordersResponse] = await Promise.all([
+        axios.get(`${API_BASE}/products`),
+        // For now, we'll calculate stats from products since orders service isn't implemented yet
+        axios.get(`${API_BASE}/products`)
+      ]);
+
+      const products = productsResponse.data.products || [];
+      
+      // Calculate real statistics from actual data
+      const totalProducts = products.length;
+      const activeProducts = products.filter(p => p.isActive).length;
+      const featuredProducts = products.filter(p => p.isFeatured).length;
+      const lowStockProducts = products.filter(p => p.inventory?.quantity < 10).length;
+      
+      // Calculate total inventory value
+      const totalInventoryValue = products.reduce((sum, product) => {
+        const price = product.pricing?.originalPrice || 0;
+        const quantity = product.inventory?.quantity || 0;
+        return sum + (price * quantity);
+      }, 0);
+
+      const realStats = {
+        totalProducts: totalProducts,
+        totalActiveProducts: activeProducts,
+        totalFeaturedProducts: featuredProducts,
+        totalInventoryValue: totalInventoryValue,
+        lowStockCount: lowStockProducts,
+        // These will be real once order service is implemented
+        totalOrders: 0,
+        totalSales: 0,
+        totalCustomers: 0
+      };
+
+      setStats(realStats);
+
+      // For recent orders, we'll show a message until order service is implemented
+      setRecentOrders([]);
+
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      
+      // Fallback to empty state instead of mock data
+      setStats({
+        totalProducts: 0,
+        totalActiveProducts: 0,
+        totalFeaturedProducts: 0,
+        totalInventoryValue: 0,
+        lowStockCount: 0,
+        totalOrders: 0,
+        totalSales: 0,
+        totalCustomers: 0
+      });
+      setRecentOrders([]);
     } finally {
       setLoading(false);
     }

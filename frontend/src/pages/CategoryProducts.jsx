@@ -25,7 +25,7 @@ function CategoryProducts() {
     const fetchCategoryProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3003/products/category/${categoryId}?sortBy=${sortBy}&limit=50`);
+        const response = await axios.get(`http://localhost:8080/api/products/category/${categoryId}?sortBy=${sortBy}&limit=50`);
         
         if (response.data.success) {
           setCategory(response.data.category);

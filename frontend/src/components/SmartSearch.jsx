@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-function SmartSearch({ onSearchResults, className = '' }) {
+function SmartSearch({ onSearchResults, onSearchComplete, className = '' }) {
   const [query, setQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -10,11 +10,47 @@ function SmartSearch({ onSearchResults, className = '' }) {
   const [recentSearches, setRecentSearches] = useState([]);
   const [trendingSearches, setTrendingSearches] = useState([]);
   const [activeIndex, setActiveIndex] = useState(-1);
+  const [isListening, setIsListening] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [searchFilters, setSearchFilters] = useState({
+    category: '',
+    minPrice: '',
+    maxPrice: '',
+    sortBy: 'relevance'
+  });
   
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
   const suggestionsRef = useRef(null);
   const debounceRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize speech recognition
+  useEffect(() => {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = false;
+      recognitionRef.current.lang = 'en-US';
+
+      recognitionRef.current.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setQuery(transcript);
+        setIsListening(false);
+        // Trigger search after voice input
+        setTimeout(() => handleSearch(transcript), 500);
+      };
+
+      recognitionRef.current.onerror = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+      };
+    }
+  }, []);
 
   // Load recent searches and trending on component mount
   useEffect(() => {
@@ -37,7 +73,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
   // Load trending searches
   const loadTrendingSearches = async () => {
     try {
-      const response = await axios.get('http://localhost:3003/products/trending?limit=6');
+      const response = await axios.get('http://localhost:8080/api/products/trending?limit=6');
       if (response.data.success) {
         setTrendingSearches(response.data.trending);
       }
@@ -54,6 +90,22 @@ function SmartSearch({ onSearchResults, className = '' }) {
       localStorage.setItem('recentSearches', JSON.stringify(recent));
     } catch (error) {
       console.error('Error saving recent search:', error);
+    }
+  };
+
+  // Start voice search
+  const startVoiceSearch = () => {
+    if (recognitionRef.current && !isListening) {
+      setIsListening(true);
+      recognitionRef.current.start();
+    }
+  };
+
+  // Stop voice search
+  const stopVoiceSearch = () => {
+    if (recognitionRef.current && isListening) {
+      recognitionRef.current.stop();
+      setIsListening(false);
     }
   };
 
@@ -81,7 +133,7 @@ function SmartSearch({ onSearchResults, className = '' }) {
   // Fetch autocomplete suggestions
   const fetchAutoComplete = async (searchTerm) => {
     try {
-      const response = await axios.get(`http://localhost:3003/products/autocomplete?q=${encodeURIComponent(searchTerm)}&limit=8`);
+      const response = await axios.get(`http://localhost:8080/api/products/autocomplete?q=${encodeURIComponent(searchTerm)}&limit=8`);
       if (response.data.success) {
         setSuggestions(response.data.suggestions);
       }
@@ -91,14 +143,27 @@ function SmartSearch({ onSearchResults, className = '' }) {
   };
 
   // Handle search execution
-  const handleSearch = async (searchTerm = query) => {
+  const handleSearch = async (searchTerm = query, filters = searchFilters) => {
     if (!searchTerm.trim()) return;
     
     setLoading(true);
     setShowSuggestions(false);
     
     try {
-      const response = await axios.get(`http://localhost:3003/products/smart-search?q=${encodeURIComponent(searchTerm)}&limit=20&includeSuggestions=true`);
+      // Build query parameters
+      const params = new URLSearchParams({
+        q: searchTerm,
+        limit: '20',
+        includeSuggestions: 'true'
+      });
+
+      // Add filters
+      if (filters.category) params.append('category', filters.category);
+      if (filters.minPrice) params.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
+      if (filters.sortBy && filters.sortBy !== 'relevance') params.append('sort', filters.sortBy);
+
+      const response = await axios.get(`http://localhost:8080/api/products/smart-search?${params}`);
       
       if (response.data.success) {
         saveRecentSearch(searchTerm);
@@ -109,11 +174,21 @@ function SmartSearch({ onSearchResults, className = '' }) {
             results: response.data.results,
             suggestions: response.data.suggestions,
             query: searchTerm,
-            totalFound: response.data.totalFound
+            totalFound: response.data.totalFound,
+            filters: filters
           });
         } else {
           // Navigate to search results page
-          navigate(`/search?q=${encodeURIComponent(searchTerm)}`);
+          const searchParams = new URLSearchParams({
+            q: searchTerm,
+            ...filters
+          });
+          navigate(`/search?${searchParams}`);
+        }
+
+        // Call search complete callback for mobile
+        if (onSearchComplete) {
+          onSearchComplete();
         }
       }
     } catch (error) {

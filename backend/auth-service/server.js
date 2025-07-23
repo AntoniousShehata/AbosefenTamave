@@ -139,8 +139,8 @@ const sessionSchema = new mongoose.Schema({
     unique: true
   },
   device: {
-    type: String,
     ip: String,
+    userAgent: String,
     os: String,
     browser: String
   },
@@ -157,8 +157,62 @@ const sessionSchema = new mongoose.Schema({
   timestamps: true
 });
 
+// Cart Schema for user-specific shopping carts
+const cartSchema = new mongoose.Schema({
+  userId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+    unique: true
+  },
+  items: [{
+    _id: {
+      type: String,
+      required: true
+    },
+    name: mongoose.Schema.Types.Mixed,
+    slug: String,
+    price: {
+      type: Number,
+      required: true,
+      min: 0
+    },
+    originalPrice: Number,
+    isOnSale: {
+      type: Boolean,
+      default: false
+    },
+    image: String,
+    inventory: mongoose.Schema.Types.Mixed,
+    quantity: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 1
+    }
+  }],
+  totalItems: {
+    type: Number,
+    default: 0
+  },
+  totalAmount: {
+    type: Number,
+    default: 0
+  }
+}, {
+  timestamps: true
+});
+
+// Update totals before saving cart
+cartSchema.pre('save', function(next) {
+  this.totalItems = this.items.reduce((total, item) => total + item.quantity, 0);
+  this.totalAmount = this.items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  next();
+});
+
 const User = mongoose.model('User', userSchema);
 const Session = mongoose.model('Session', sessionSchema);
+const Cart = mongoose.model('Cart', cartSchema);
 
 // Middleware
 app.use(helmet());
@@ -178,7 +232,7 @@ app.use(express.urlencoded({ extended: true }));
 // Rate limiting
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 requests per window
+  max: 50, // 50 requests per window (increased from 5)
   message: {
     error: 'Too many authentication attempts. Please try again later.',
     retryAfter: '15 minutes'
@@ -189,7 +243,7 @@ const authLimiter = rateLimit({
 
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per window
+  max: 500, // 500 requests per window (increased from 100)
   standardHeaders: true,
   legacyHeaders: false
 });
@@ -276,31 +330,41 @@ app.post('/auth/register', [
   body('password').isLength({ min: 6 }),
   body('firstName').trim().isLength({ min: 1 }),
   body('lastName').trim().isLength({ min: 1 }),
-  body('phone').optional().isMobilePhone('ar-EG')
+  body('phone').optional().isLength({ min: 10, max: 15 })
 ], async (req, res) => {
   try {
+    console.log('🔵 Registration attempt started');
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('❌ Validation failed:', errors.array());
       return res.status(400).json({
         error: 'Validation failed',
         details: errors.array()
       });
     }
 
-    const { email, password, firstName, lastName, phone, address } = req.body;
+    console.log('✅ Validation passed');
+    const { email, password, firstName, lastName, phone, address, role } = req.body;
 
     // Check if user already exists
+    console.log('🔍 Checking if user exists:', email);
     const existingUser = await User.findOne({ email });
     if (existingUser) {
+      console.log('❌ User already exists');
       return res.status(409).json({
         error: 'User already exists',
         code: 'USER_EXISTS'
       });
     }
 
+    console.log('✅ User does not exist, proceeding with creation');
+    
     // Hash password
+    console.log('🔐 Hashing password');
     const hashedPassword = await bcrypt.hash(password, config.bcrypt.rounds);
 
+    console.log('👤 Creating user object');
     // Create user
     const user = new User({
       email,
@@ -310,33 +374,40 @@ app.post('/auth/register', [
         lastName,
         phone
       },
-      address: address || {}
+      address: typeof address === 'string' ? { street: address } : address || {},
+      role: role || 'customer' // Allow setting role, default to customer
     });
 
+    console.log('💾 Saving user to database');
     await user.save();
 
+    console.log('🎫 Generating tokens');
     // Generate tokens
     const tokens = generateTokens(user);
 
+    console.log('📝 Creating session');
     // Create session
     const session = new Session({
       userId: user._id,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       device: {
-        ip: req.ip,
-        userAgent: req.get('User-Agent')
+        ip: req.ip || 'unknown',
+        userAgent: req.get('User-Agent') || 'unknown'
       },
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
     });
 
+    console.log('💾 Saving session to database');
     await session.save();
 
+    console.log('✅ Registration successful, sending response');
     // Remove password from response
     const userResponse = user.toObject();
     delete userResponse.password;
 
     res.status(201).json({
+      success: true,
       message: 'User registered successfully',
       user: userResponse,
       token: tokens.accessToken,
@@ -344,10 +415,12 @@ app.post('/auth/register', [
     });
 
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('❌ Registration error:', error);
+    console.error('❌ Error stack:', error.stack);
     res.status(500).json({
       error: 'Registration failed',
-      message: error.message
+      message: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
 });
@@ -399,8 +472,8 @@ app.post('/auth/login', [
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken,
       device: {
-        ip: req.ip,
-        userAgent: req.get('User-Agent')
+        ip: req.ip || 'unknown',
+        userAgent: req.get('User-Agent') || 'unknown'
       },
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days
     });
@@ -644,6 +717,203 @@ app.get('/admin/users', async (req, res) => {
     console.error('Error fetching users:', error);
     res.status(500).json({
       error: 'Failed to fetch users'
+    });
+  }
+});
+
+// ===== CART MANAGEMENT ENDPOINTS =====
+
+// Get user's cart
+app.get('/cart', authenticateToken, async (req, res) => {
+  try {
+    const cart = await Cart.findOne({ userId: req.user._id });
+    
+    res.json({
+      success: true,
+      cart: cart ? cart.items : [],
+      totalItems: cart ? cart.totalItems : 0,
+      totalAmount: cart ? cart.totalAmount : 0
+    });
+  } catch (error) {
+    console.error('Error fetching cart:', error);
+    res.status(500).json({
+      error: 'Failed to fetch cart',
+      code: 'CART_FETCH_ERROR'
+    });
+  }
+});
+
+// Save/Update user's cart
+app.post('/cart', authenticateToken, async (req, res) => {
+  try {
+    const { cart: cartItems } = req.body;
+
+    if (!Array.isArray(cartItems)) {
+      return res.status(400).json({
+        error: 'Cart items must be an array',
+        code: 'INVALID_CART_DATA'
+      });
+    }
+
+    // Validate cart items
+    for (const item of cartItems) {
+      if (!item._id || !item.price || !item.quantity || item.quantity <= 0) {
+        return res.status(400).json({
+          error: 'Invalid cart item format',
+          code: 'INVALID_CART_ITEM',
+          details: 'Each item must have _id, price, and positive quantity'
+        });
+      }
+    }
+
+    // Update or create cart
+    const cart = await Cart.findOneAndUpdate(
+      { userId: req.user._id },
+      { 
+        userId: req.user._id,
+        items: cartItems
+      },
+      { 
+        new: true, 
+        upsert: true,
+        runValidators: true
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Cart saved successfully',
+      cart: cart.items,
+      totalItems: cart.totalItems,
+      totalAmount: cart.totalAmount
+    });
+  } catch (error) {
+    console.error('Error saving cart:', error);
+    res.status(500).json({
+      error: 'Failed to save cart',
+      code: 'CART_SAVE_ERROR',
+      details: error.message
+    });
+  }
+});
+
+// Clear user's cart
+app.delete('/cart', authenticateToken, async (req, res) => {
+  try {
+    await Cart.findOneAndUpdate(
+      { userId: req.user._id },
+      { 
+        items: [],
+        totalItems: 0,
+        totalAmount: 0
+      },
+      { upsert: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Cart cleared successfully'
+    });
+  } catch (error) {
+    console.error('Error clearing cart:', error);
+    res.status(500).json({
+      error: 'Failed to clear cart',
+      code: 'CART_CLEAR_ERROR'
+    });
+  }
+});
+
+// Add single item to cart
+app.post('/cart/add', authenticateToken, async (req, res) => {
+  try {
+    const { item } = req.body;
+
+    if (!item || !item._id || !item.price || !item.quantity || item.quantity <= 0) {
+      return res.status(400).json({
+        error: 'Invalid item format',
+        code: 'INVALID_ITEM_DATA'
+      });
+    }
+
+    const cart = await Cart.findOne({ userId: req.user._id });
+    let cartItems = cart ? cart.items : [];
+
+    // Check if item already exists
+    const existingItemIndex = cartItems.findIndex(cartItem => cartItem._id === item._id);
+    
+    if (existingItemIndex > -1) {
+      // Update quantity
+      cartItems[existingItemIndex].quantity += item.quantity;
+    } else {
+      // Add new item
+      cartItems.push(item);
+    }
+
+    // Update cart
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId: req.user._id },
+      { 
+        userId: req.user._id,
+        items: cartItems
+      },
+      { 
+        new: true, 
+        upsert: true,
+        runValidators: true
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Item added to cart',
+      cart: updatedCart.items,
+      totalItems: updatedCart.totalItems,
+      totalAmount: updatedCart.totalAmount
+    });
+  } catch (error) {
+    console.error('Error adding item to cart:', error);
+    res.status(500).json({
+      error: 'Failed to add item to cart',
+      code: 'CART_ADD_ERROR'
+    });
+  }
+});
+
+// Remove single item from cart
+app.delete('/cart/item/:itemId', authenticateToken, async (req, res) => {
+  try {
+    const { itemId } = req.params;
+
+    const cart = await Cart.findOne({ userId: req.user._id });
+    if (!cart) {
+      return res.status(404).json({
+        error: 'Cart not found',
+        code: 'CART_NOT_FOUND'
+      });
+    }
+
+    // Filter out the item
+    const filteredItems = cart.items.filter(item => item._id !== itemId);
+
+    // Update cart
+    const updatedCart = await Cart.findOneAndUpdate(
+      { userId: req.user._id },
+      { items: filteredItems },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Item removed from cart',
+      cart: updatedCart.items,
+      totalItems: updatedCart.totalItems,
+      totalAmount: updatedCart.totalAmount
+    });
+  } catch (error) {
+    console.error('Error removing item from cart:', error);
+    res.status(500).json({
+      error: 'Failed to remove item from cart',
+      code: 'CART_REMOVE_ERROR'
     });
   }
 });

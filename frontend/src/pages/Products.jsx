@@ -16,7 +16,7 @@ function Products() {
   // Get products from API
   useEffect(() => {
     setLoading(true);
-    axios.get('http://localhost:3003/products')
+    axios.get('http://localhost:8080/api/products')
       .then(res => {
         const productsData = res.data.products || res.data;
         setProducts(productsData);

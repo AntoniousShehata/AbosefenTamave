@@ -9,17 +9,29 @@ function AdminOrders() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    loadOrders();
+    fetchOrders();
   }, []);
 
-  const loadOrders = async () => {
+  const fetchOrders = async () => {
     try {
-      // This endpoint would need to be implemented in the backend
-      const response = await axios.get('http://localhost:5000/api/admin/orders');
-      setOrders(response.data);
+      setLoading(true);
+      
+      // Real API call - will show empty list until order service is implemented
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      
+      try {
+        const response = await axios.get(`${API_BASE}/orders`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        setOrders(response.data.orders || []);
+      } catch (error) {
+        // Order service not implemented yet, show empty state
+        console.log('Order service not yet implemented, showing empty state');
+        setOrders([]);
+      }
+
     } catch (error) {
-      console.error('Error loading orders:', error);
-      // For now, we'll set an empty array
+      console.error('Error fetching orders:', error);
       setOrders([]);
     } finally {
       setLoading(false);
@@ -28,19 +40,19 @@ function AdminOrders() {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      await axios.patch(`http://localhost:5000/api/admin/orders/${orderId}`, {
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      
+      await axios.patch(`${API_BASE}/orders/${orderId}`, {
         status: newStatus
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       
-      // Update local state
-      setOrders(orders.map(order => 
-        order.id === orderId ? { ...order, status: newStatus } : order
-      ));
-      
-      alert('Order status updated successfully!');
+      // Refresh orders list
+      fetchOrders();
     } catch (error) {
       console.error('Error updating order status:', error);
-      alert('Failed to update order status');
+      alert('Order service not yet implemented');
     }
   };
 
@@ -143,7 +155,7 @@ function AdminOrders() {
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50">
+                  <tr key={order._id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div>
                         <div className="text-sm font-medium text-gray-900">
@@ -192,7 +204,7 @@ function AdminOrders() {
                       </button>
                       <select
                         value={order.status}
-                        onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                        onChange={(e) => updateOrderStatus(order._id, e.target.value)}
                         className="text-xs px-2 py-1 border rounded"
                       >
                         <option value="pending">Pending</option>

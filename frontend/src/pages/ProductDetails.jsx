@@ -25,7 +25,7 @@ function ProductDetails() {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:3003/products/details/${slug}`);
+        const response = await axios.get(`http://localhost:8080/api/products/details/${slug}`);
         
         if (response.data.success) {
           setProduct(response.data.product);

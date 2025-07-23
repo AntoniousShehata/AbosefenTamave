@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useCart } from '../context/CartContext';
 import { Link, useNavigate } from 'react-router-dom';
 
@@ -16,7 +16,52 @@ function Cart() {
   
   const navigate = useNavigate();
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [swipeStates, setSwipeStates] = useState({});
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
   const totals = getCartTotals();
+
+  // Mobile swipe detection for item removal
+  const handleTouchStart = (e, itemId) => {
+    if (e.touches.length === 1) {
+      touchStartX.current = e.touches[0].clientX;
+      touchStartY.current = e.touches[0].clientY;
+    }
+  };
+
+  const handleTouchMove = (e, itemId) => {
+    if (!touchStartX.current || !touchStartY.current) return;
+
+    const touchCurrentX = e.touches[0].clientX;
+    const touchCurrentY = e.touches[0].clientY;
+    const deltaX = touchStartX.current - touchCurrentX;
+    const deltaY = touchStartY.current - touchCurrentY;
+
+    // Only trigger if horizontal swipe is dominant
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      setSwipeStates(prev => ({
+        ...prev,
+        [itemId]: deltaX > 0 ? 'swiping-left' : 'swiping-right'
+      }));
+    }
+  };
+
+  const handleTouchEnd = (e, itemId) => {
+    if (!touchStartX.current) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const deltaX = touchStartX.current - touchEndX;
+
+    // If swiped left more than 100px, show remove button
+    if (deltaX > 100) {
+      setSwipeStates(prev => ({ ...prev, [itemId]: 'show-remove' }));
+    } else {
+      setSwipeStates(prev => ({ ...prev, [itemId]: '' }));
+    }
+
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
 
   const handleQuantityChange = (productId, newQuantity) => {
     const quantity = parseInt(newQuantity);
@@ -27,6 +72,8 @@ function Cart() {
 
   const handleRemoveItem = (productId) => {
     removeItem(productId);
+    // Reset swipe state
+    setSwipeStates(prev => ({ ...prev, [productId]: '' }));
   };
 
   const handleClearCart = () => {

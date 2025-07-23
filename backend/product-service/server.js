@@ -1282,6 +1282,210 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ===== PRODUCT MANAGEMENT ENDPOINTS (ADMIN) =====
+
+// Create new product
+app.post('/products', async (req, res) => {
+  try {
+    console.log('Creating new product:', req.body);
+    
+    const product = {
+      ...req.body,
+      _id: req.body.sku || `product_${Date.now()}`, // Use SKU or generate ID
+      slug: req.body.name.en.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      views: 0,
+      sales: 0,
+      rating: {
+        average: 0,
+        count: 0,
+        reviews: []
+      }
+    };
+
+    const result = await db.collection('products').insertOne(product);
+    
+    if (result.acknowledged) {
+      res.json({
+        success: true,
+        message: 'Product created successfully',
+        product: { ...product, _id: result.insertedId }
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: 'Failed to create product'
+      });
+    }
+  } catch (error) {
+    console.error('Error creating product:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Update existing product
+app.put('/products/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    console.log('Updating product:', productId, req.body);
+    
+    const updateData = {
+      ...req.body,
+      updatedAt: new Date(),
+      slug: req.body.name?.en ? req.body.name.en.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-') : undefined
+    };
+    
+    // Remove undefined fields
+    Object.keys(updateData).forEach(key => updateData[key] === undefined && delete updateData[key]);
+
+    const result = await db.collection('products').updateOne(
+      { _id: productId },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount > 0) {
+      const updatedProduct = await db.collection('products').findOne({ _id: productId });
+      res.json({
+        success: true,
+        message: 'Product updated successfully',
+        product: updatedProduct
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Delete product
+app.delete('/products/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    console.log('Deleting product:', productId);
+    
+    const result = await db.collection('products').deleteOne({ _id: productId });
+    
+    if (result.deletedCount > 0) {
+      res.json({
+        success: true,
+        message: 'Product deleted successfully'
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Get single product by ID
+app.get('/products/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+    console.log('Getting product by ID:', productId);
+    
+    const product = await db.collection('products').findOne({ _id: productId });
+    
+    if (product) {
+      res.json({
+        success: true,
+        product: product
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        message: 'Product not found'
+      });
+    }
+  } catch (error) {
+    console.error('Error getting product:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// Bulk operations for products
+app.post('/products/bulk', async (req, res) => {
+  try {
+    const { action, productIds } = req.body;
+    console.log('Bulk operation:', action, 'on products:', productIds);
+    
+    let result;
+    
+    switch (action) {
+      case 'delete':
+        result = await db.collection('products').deleteMany({ 
+          _id: { $in: productIds } 
+        });
+        res.json({
+          success: true,
+          message: `${result.deletedCount} products deleted`,
+          deletedCount: result.deletedCount
+        });
+        break;
+        
+      case 'activate':
+        result = await db.collection('products').updateMany(
+          { _id: { $in: productIds } },
+          { $set: { isActive: true, updatedAt: new Date() } }
+        );
+        res.json({
+          success: true,
+          message: `${result.modifiedCount} products activated`,
+          modifiedCount: result.modifiedCount
+        });
+        break;
+        
+      case 'deactivate':
+        result = await db.collection('products').updateMany(
+          { _id: { $in: productIds } },
+          { $set: { isActive: false, updatedAt: new Date() } }
+        );
+        res.json({
+          success: true,
+          message: `${result.modifiedCount} products deactivated`,
+          modifiedCount: result.modifiedCount
+        });
+        break;
+        
+      default:
+        res.status(400).json({
+          success: false,
+          message: 'Invalid bulk action'
+        });
+    }
+  } catch (error) {
+    console.error('Error in bulk operation:', error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+});
+
+// ===== END PRODUCT MANAGEMENT ENDPOINTS =====
+
 // 404 handler
 app.use('*', (req, res) => {
   res.status(404).json({ 
