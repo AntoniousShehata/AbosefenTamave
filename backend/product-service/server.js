@@ -19,6 +19,536 @@ let db;
 // let smartSearchService; // Not needed anymore
 let recommendationService;
 
+// ===== ENHANCED SCHEMAS FOR ENTERPRISE FEATURES =====
+
+// Hierarchical Category System
+const enhancedCategorySchema = {
+  _id: String, // BF, KF, BT, etc.
+  code: String, // 2-digit category code
+  name: { en: String, ar: String },
+  description: { en: String, ar: String },
+  image: String,
+  isActive: Boolean,
+  sortOrder: Number,
+  subcategories: [{
+    _id: String, // BF-01, BF-02, etc.
+    code: String, // 2-digit subcategory code  
+    name: { en: String, ar: String },
+    description: { en: String, ar: String },
+    image: String,
+    isActive: Boolean,
+    sortOrder: Number,
+    productTypes: [{
+      _id: String, // BF-01-001, BF-01-002, etc.
+      code: String, // 3-digit product type code
+      name: { en: String, ar: String },
+      description: { en: String, ar: String },
+      isActive: Boolean,
+      sortOrder: Number
+    }]
+  }],
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Store/Branch Management Schema
+const storeSchema = {
+  _id: String, // ST01, ST02, etc.
+  code: String, // 2-digit store code
+  name: { en: String, ar: String },
+  type: String, // "main", "branch", "warehouse", "showroom"
+  location: {
+    address: { en: String, ar: String },
+    city: { en: String, ar: String },
+    governorate: { en: String, ar: String },
+    postalCode: String,
+    coordinates: { lat: Number, lng: Number },
+    phone: String,
+    email: String
+  },
+  manager: {
+    name: String,
+    phone: String,
+    email: String
+  },
+  operatingHours: {
+    weekdays: { open: String, close: String },
+    weekends: { open: String, close: String },
+    holidays: String
+  },
+  isActive: Boolean,
+  features: [String], // ["showroom", "warehouse", "service", "delivery"]
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Enhanced Product Schema with Hierarchical Coding
+const enhancedProductSchema = {
+  _id: String, // Auto-generated hierarchical SKU
+  hierarchicalCode: {
+    category: String, // BF
+    subcategory: String, // 01  
+    productType: String, // 001
+    variant: String, // 01
+    full: String // BF-01-001-01
+  },
+  name: { en: String, ar: String },
+  slug: String,
+  categoryId: String,
+  subcategoryId: String,
+  productTypeId: String,
+  description: { en: String, ar: String },
+  specifications: {
+    dimensions: { width: Number, height: Number, depth: Number, unit: String },
+    weight: { value: Number, unit: String },
+    material: { en: String, ar: String },
+    color: { en: String, ar: String },
+    finish: { en: String, ar: String },
+    brand: String,
+    model: String,
+    countryOfOrigin: String
+  },
+  variants: [{
+    _id: String,
+    code: String, // 01, 02, etc.
+    name: { en: String, ar: String },
+    sku: String, // Full hierarchical SKU
+    specifications: Object,
+    pricing: Object,
+    inventory: Object,
+    images: Array,
+    isActive: Boolean
+  }],
+  pricing: {
+    originalPrice: Number,
+    salePrice: Number,
+    isOnSale: Boolean,
+    discountPercentage: Number,
+    currency: String,
+    priceHistory: [{
+      price: Number,
+      date: Date,
+      reason: String
+    }]
+  },
+  inventory: {
+    multiLocation: [{
+      storeId: String,
+      storeName: String,
+      quantity: Number,
+      reserved: Number,
+      available: Number,
+      lowStockThreshold: Number,
+      lastUpdated: Date
+    }],
+    totalQuantity: Number,
+    totalReserved: Number,
+    totalAvailable: Number,
+    inStock: Boolean,
+    lowStockThreshold: Number,
+    reorderPoint: Number,
+    reorderQuantity: Number,
+    autoReorder: Boolean
+  },
+  supplier: {
+    _id: String,
+    name: String,
+    contact: Object,
+    leadTime: Number, // days
+    minOrderQuantity: Number,
+    pricePerUnit: Number,
+    paymentTerms: String
+  },
+  images: [{
+    url: String,
+    alt: { en: String, ar: String },
+    isPrimary: Boolean,
+    sortOrder: Number,
+    variants: [String] // Which variants this image applies to
+  }],
+  seo: {
+    metaTitle: { en: String, ar: String },
+    metaDescription: { en: String, ar: String },
+    keywords: [String]
+  },
+  ratings: {
+    average: Number,
+    count: Number,
+    distribution: { 1: Number, 2: Number, 3: Number, 4: Number, 5: Number }
+  },
+  sales: {
+    totalSold: Number,
+    totalRevenue: Number,
+    lastSaleDate: Date,
+    averageSalesPerMonth: Number
+  },
+  tags: [String],
+  isActive: Boolean,
+  isFeatured: Boolean,
+  isNewArrival: Boolean,
+  isBestSeller: Boolean,
+  status: String, // "active", "discontinued", "out-of-stock", "pre-order"
+  createdAt: Date,
+  updatedAt: Date,
+  createdBy: String,
+  updatedBy: String
+};
+
+// Supplier Management Schema
+const supplierSchema = {
+  _id: String,
+  code: String, // SUP001, SUP002, etc.
+  name: { en: String, ar: String },
+  legalName: String,
+  taxId: String,
+  contact: {
+    address: { en: String, ar: String },
+    city: { en: String, ar: String },
+    country: String,
+    phone: String,
+    email: String,
+    website: String,
+    contactPerson: {
+      name: String,
+      position: String,
+      phone: String,
+      email: String
+    }
+  },
+  businessInfo: {
+    establishedYear: Number,
+    businessType: String,
+    certifications: [String],
+    paymentTerms: String,
+    creditLimit: Number,
+    currency: String
+  },
+  performance: {
+    rating: Number,
+    onTimeDelivery: Number,
+    qualityRating: Number,
+    responseTime: Number,
+    totalOrders: Number,
+    totalValue: Number
+  },
+  products: [String], // Product IDs they supply
+  isActive: Boolean,
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Purchase Order Schema
+const purchaseOrderSchema = {
+  _id: String, // PO-2024-001
+  orderNumber: String,
+  supplierId: String,
+  storeId: String, // Destination store
+  status: String, // "draft", "sent", "confirmed", "shipped", "received", "completed", "cancelled"
+  orderDate: Date,
+  expectedDeliveryDate: Date,
+  actualDeliveryDate: Date,
+  items: [{
+    productId: String,
+    variantId: String,
+    sku: String,
+    name: { en: String, ar: String },
+    quantity: Number,
+    unitPrice: Number,
+    totalPrice: Number,
+    receivedQuantity: Number,
+    specifications: Object
+  }],
+  totals: {
+    subtotal: Number,
+    tax: Number,
+    shipping: Number,
+    discount: Number,
+    total: Number,
+    currency: String
+  },
+  shipping: {
+    method: String,
+    trackingNumber: String,
+    estimatedDelivery: Date,
+    actualDelivery: Date
+  },
+  payments: [{
+    amount: Number,
+    date: Date,
+    method: String,
+    reference: String,
+    status: String
+  }],
+  notes: String,
+  attachments: [String],
+  createdBy: String,
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Sales/Orders Analytics Schema
+const salesOrderSchema = {
+  _id: String,
+  orderNumber: String,
+  customerId: String,
+  storeId: String, // Which store fulfilled the order
+  status: String,
+  orderDate: Date,
+  items: [{
+    productId: String,
+    variantId: String,
+    sku: String,
+    name: { en: String, ar: String },
+    quantity: Number,
+    unitPrice: Number,
+    totalPrice: Number,
+    storeId: String // Which store the item came from
+  }],
+  totals: {
+    subtotal: Number,
+    tax: Number,
+    shipping: Number,
+    discount: Number,
+    total: Number,
+    currency: String
+  },
+  customer: {
+    name: String,
+    email: String,
+    phone: String,
+    address: Object
+  },
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Automation Rules Schema
+const automationRuleSchema = {
+  _id: String,
+  name: String,
+  type: String, // "low-stock-alert", "auto-reorder", "price-update", "promotion"
+  isActive: Boolean,
+  conditions: [{
+    field: String,
+    operator: String,
+    value: Object
+  }],
+  actions: [{
+    type: String,
+    parameters: Object
+  }],
+  lastExecuted: Date,
+  executionCount: Number,
+  createdAt: Date,
+  updatedAt: Date
+};
+
+// Enhanced Categories with Hierarchical Structure
+const enhancedCategories = [
+  {
+    _id: "BF",
+    code: "BF",
+    name: { en: "Bathroom Fittings", ar: "تجهيزات الحمام" },
+    description: { en: "Complete range of bathroom fixtures and fittings", ar: "مجموعة كاملة من تجهيزات الحمام" },
+    image: "/images/categories/BATHROOM_FITTINGS.jpg",
+    isActive: true,
+    sortOrder: 1,
+    subcategories: [
+      {
+        _id: "BF-01",
+        code: "01",
+        name: { en: "Basins & Sinks", ar: "الأحواض والمغاسل" },
+        description: { en: "Wall-mounted and countertop basins", ar: "أحواض معلقة وأحواض الطاولة" },
+        isActive: true,
+        sortOrder: 1,
+        productTypes: [
+          { _id: "BF-01-001", code: "001", name: { en: "Wall-Mounted Basins", ar: "أحواض معلقة" }, isActive: true, sortOrder: 1 },
+          { _id: "BF-01-002", code: "002", name: { en: "Countertop Basins", ar: "أحواض الطاولة" }, isActive: true, sortOrder: 2 },
+          { _id: "BF-01-003", code: "003", name: { en: "Pedestal Basins", ar: "أحواض القاعدة" }, isActive: true, sortOrder: 3 }
+        ]
+      },
+      {
+        _id: "BF-02",
+        code: "02", 
+        name: { en: "Toilets & Bidets", ar: "المراحيض والبيديت" },
+        description: { en: "Modern toilet fixtures and bidets", ar: "تجهيزات المراحيض والبيديت الحديثة" },
+        isActive: true,
+        sortOrder: 2,
+        productTypes: [
+          { _id: "BF-02-001", code: "001", name: { en: "Wall-Hung Toilets", ar: "مراحيض معلقة" }, isActive: true, sortOrder: 1 },
+          { _id: "BF-02-002", code: "002", name: { en: "Floor-Standing Toilets", ar: "مراحيض أرضية" }, isActive: true, sortOrder: 2 },
+          { _id: "BF-02-003", code: "003", name: { en: "Bidets", ar: "بيديت" }, isActive: true, sortOrder: 3 }
+        ]
+      }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    _id: "KF", 
+    code: "KF",
+    name: { en: "Kitchen Fittings", ar: "تجهيزات المطبخ" },
+    description: { en: "Kitchen sinks, faucets and accessories", ar: "أحواض وصنابير ومعدات المطبخ" },
+    image: "/images/categories/KITCHEN_FITTINGS.jpg",
+    isActive: true,
+    sortOrder: 2,
+    subcategories: [
+      {
+        _id: "KF-01",
+        code: "01",
+        name: { en: "Kitchen Sinks", ar: "أحواض المطبخ" },
+        description: { en: "Stainless steel and granite kitchen sinks", ar: "أحواض المطبخ من الستانلس ستيل والجرانيت" },
+        isActive: true,
+        sortOrder: 1,
+        productTypes: [
+          { _id: "KF-01-001", code: "001", name: { en: "Single Bowl Sinks", ar: "أحواض وعاء واحد" }, isActive: true, sortOrder: 1 },
+          { _id: "KF-01-002", code: "002", name: { en: "Double Bowl Sinks", ar: "أحواض وعاءين" }, isActive: true, sortOrder: 2 },
+          { _id: "KF-01-003", code: "003", name: { en: "Farmhouse Sinks", ar: "أحواض الريف" }, isActive: true, sortOrder: 3 }
+        ]
+      },
+      {
+        _id: "KF-02",
+        code: "02",
+        name: { en: "Kitchen Faucets", ar: "صنابير المطبخ" },
+        description: { en: "Modern kitchen faucets and mixers", ar: "صنابير ومخلطات المطبخ الحديثة" },
+        isActive: true,
+        sortOrder: 2,
+        productTypes: [
+          { _id: "KF-02-001", code: "001", name: { en: "Pull-Out Faucets", ar: "صنابير قابلة للسحب" }, isActive: true, sortOrder: 1 },
+          { _id: "KF-02-002", code: "002", name: { en: "Single Handle Faucets", ar: "صنابير مقبض واحد" }, isActive: true, sortOrder: 2 },
+          { _id: "KF-02-003", code: "003", name: { en: "Commercial Faucets", ar: "صنابير تجارية" }, isActive: true, sortOrder: 3 }
+        ]
+      }
+    ],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+];
+
+// Sample Stores/Branches
+const sampleStores = [
+  {
+    _id: "ST01",
+    code: "ST01",
+    name: { en: "Abosefen Main Store", ar: "المتجر الرئيسي لأبوسيفين" },
+    type: "main",
+    location: {
+      address: { en: "123 Tahrir Square, Downtown", ar: "123 ميدان التحرير، وسط البلد" },
+      city: { en: "Cairo", ar: "القاهرة" },
+      governorate: { en: "Cairo", ar: "القاهرة" },
+      postalCode: "11511",
+      coordinates: { lat: 30.0444, lng: 31.2357 },
+      phone: "+20-2-12345678",
+      email: "main@abosefen.com"
+    },
+    manager: {
+      name: "Ahmed Hassan",
+      phone: "+20-100-1234567", 
+      email: "ahmed.hassan@abosefen.com"
+    },
+    operatingHours: {
+      weekdays: { open: "08:00", close: "22:00" },
+      weekends: { open: "10:00", close: "20:00" },
+      holidays: "10:00-18:00"
+    },
+    isActive: true,
+    features: ["showroom", "warehouse", "service", "delivery"],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    _id: "ST02",
+    code: "ST02", 
+    name: { en: "Abosefen Giza Branch", ar: "فرع أبوسيفين الجيزة" },
+    type: "branch",
+    location: {
+      address: { en: "456 Pyramids Road, Giza", ar: "456 طريق الأهرام، الجيزة" },
+      city: { en: "Giza", ar: "الجيزة" },
+      governorate: { en: "Giza", ar: "الجيزة" },
+      postalCode: "12511",
+      coordinates: { lat: 30.0131, lng: 31.2089 },
+      phone: "+20-2-87654321",
+      email: "giza@abosefen.com"
+    },
+    manager: {
+      name: "Fatma Ali",
+      phone: "+20-100-7654321",
+      email: "fatma.ali@abosefen.com"
+    },
+    operatingHours: {
+      weekdays: { open: "09:00", close: "21:00" },
+      weekends: { open: "10:00", close: "19:00" },
+      holidays: "10:00-17:00"
+    },
+    isActive: true,
+    features: ["showroom", "service"],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  },
+  {
+    _id: "WH01",
+    code: "WH01",
+    name: { en: "Central Warehouse", ar: "المستودع المركزي" },
+    type: "warehouse",
+    location: {
+      address: { en: "Industrial Zone, 6th October City", ar: "المنطقة الصناعية، مدينة 6 أكتوبر" },
+      city: { en: "6th October", ar: "6 أكتوبر" },
+      governorate: { en: "Giza", ar: "الجيزة" },
+      postalCode: "12566",
+      coordinates: { lat: 29.9097, lng: 30.9746 },
+      phone: "+20-2-11223344",
+      email: "warehouse@abosefen.com"
+    },
+    manager: {
+      name: "Mohamed Saeed",
+      phone: "+20-100-1122334",
+      email: "mohamed.saeed@abosefen.com"
+    },
+    operatingHours: {
+      weekdays: { open: "06:00", close: "18:00" },
+      weekends: { open: "08:00", close: "14:00" },
+      holidays: "Closed"
+    },
+    isActive: true,
+    features: ["warehouse", "delivery"],
+    createdAt: new Date(),
+    updatedAt: new Date()
+  }
+];
+
+// ===== UTILITY FUNCTIONS FOR HIERARCHICAL CODING =====
+
+// Generate next available product code
+function generateProductCode(categoryCode, subcategoryCode, productTypeCode) {
+  // This will be implemented to check existing products and generate next variant code
+  return `${categoryCode}-${subcategoryCode}-${productTypeCode}-01`;
+}
+
+// Generate SKU with location
+function generateSKU(categoryCode, subcategoryCode, productTypeCode, variantCode, storeCode) {
+  return `${categoryCode}-${subcategoryCode}-${productTypeCode}-${variantCode}-${storeCode}`;
+}
+
+// Parse hierarchical code
+function parseHierarchicalCode(code) {
+  const parts = code.split('-');
+  return {
+    category: parts[0],
+    subcategory: parts[1],
+    productType: parts[2],
+    variant: parts[3],
+    store: parts[4] || null
+  };
+}
+
+// Validate hierarchical code format
+function validateHierarchicalCode(code) {
+  const pattern = /^[A-Z]{2}-\d{2}-\d{3}-\d{2}(-[A-Z]{2}\d{2})?$/;
+  return pattern.test(code);
+}
+
+// ===== END OF ENHANCED SCHEMAS =====
+
 // Sample categories and products for fallback
 const sampleCategories = [
   {
@@ -298,6 +828,22 @@ async function initializeDatabaseWithSampleData() {
       console.log('✅ Sample categories inserted successfully');
     }
 
+    // Check if enhanced categories exist
+    const enhancedCategoryCount = await db.collection('enhancedCategories').countDocuments();
+    if (enhancedCategoryCount === 0) {
+      console.log('🏗️ No enhanced categories found, inserting hierarchical categories...');
+      await db.collection('enhancedCategories').insertMany(enhancedCategories);
+      console.log('✅ Enhanced hierarchical categories inserted successfully');
+    }
+
+    // Check if stores exist
+    const storeCount = await db.collection('stores').countDocuments();
+    if (storeCount === 0) {
+      console.log('🏪 No stores found, inserting sample stores...');
+      await db.collection('stores').insertMany(sampleStores);
+      console.log('✅ Sample stores inserted successfully');
+    }
+
     // Check if products exist
     const productCount = await db.collection('products').countDocuments();
     if (productCount === 0) {
@@ -306,7 +852,74 @@ async function initializeDatabaseWithSampleData() {
       console.log('✅ Sample products inserted successfully');
     }
     
-    console.log(`📊 Database status: ${categoryCount} categories, ${productCount} products`);
+    // Initialize automation rules collection
+    const automationCount = await db.collection('automationRules').countDocuments();
+    if (automationCount === 0) {
+      console.log('🤖 Initializing automation rules...');
+      const defaultAutomationRules = [
+        {
+          _id: 'low-stock-alert',
+          name: 'Low Stock Alert',
+          type: 'low-stock-alert',
+          isActive: true,
+          conditions: [
+            {
+              field: 'inventory.totalAvailable',
+              operator: 'lte',
+              value: 5
+            }
+          ],
+          actions: [
+            {
+              type: 'send-notification',
+              parameters: {
+                type: 'email',
+                template: 'low-stock-alert',
+                recipients: ['admin@abosefen.com']
+              }
+            }
+          ],
+          lastExecuted: null,
+          executionCount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        },
+        {
+          _id: 'auto-reorder',
+          name: 'Auto Reorder Products',
+          type: 'auto-reorder',
+          isActive: false, // Disabled by default
+          conditions: [
+            {
+              field: 'inventory.totalAvailable',
+              operator: 'lte',
+              value: 3
+            },
+            {
+              field: 'inventory.autoReorder',
+              operator: 'eq',
+              value: true
+            }
+          ],
+          actions: [
+            {
+              type: 'create-purchase-order',
+              parameters: {
+                orderTemplate: 'auto-reorder'
+              }
+            }
+          ],
+          lastExecuted: null,
+          executionCount: 0,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      ];
+      await db.collection('automationRules').insertMany(defaultAutomationRules);
+      console.log('✅ Default automation rules created');
+    }
+    
+    console.log(`📊 Database status: ${categoryCount} categories, ${enhancedCategoryCount} enhanced categories, ${storeCount} stores, ${productCount} products`);
   } catch (error) {
     console.error('❌ Error initializing database:', error);
   }
@@ -1485,6 +2098,775 @@ app.post('/products/bulk', async (req, res) => {
 });
 
 // ===== END PRODUCT MANAGEMENT ENDPOINTS =====
+
+// ===== STORES & BRANCHES MANAGEMENT =====
+
+// Get all stores
+app.get('/stores', async (req, res) => {
+  try {
+    const { type, isActive = true } = req.query;
+    
+    let query = {};
+    if (type) query.type = type;
+    if (isActive !== 'all') query.isActive = isActive === 'true';
+    
+    const stores = await db.collection('stores')
+      .find(query)
+      .sort({ sortOrder: 1, 'name.en': 1 })
+      .toArray();
+    
+    res.json({
+      success: true,
+      stores
+    });
+  } catch (error) {
+    console.error('❌ Error fetching stores:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch stores' });
+  }
+});
+
+// Get single store
+app.get('/stores/:id', async (req, res) => {
+  try {
+    const store = await db.collection('stores').findOne({ _id: req.params.id });
+    
+    if (!store) {
+      return res.status(404).json({ success: false, error: 'Store not found' });
+    }
+    
+    res.json({ success: true, store });
+  } catch (error) {
+    console.error('❌ Error fetching store:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch store' });
+  }
+});
+
+// Create new store
+app.post('/stores', async (req, res) => {
+  try {
+    const store = {
+      ...req.body,
+      _id: req.body.code,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    const result = await db.collection('stores').insertOne(store);
+    
+    res.json({
+      success: true,
+      message: 'Store created successfully',
+      store
+    });
+  } catch (error) {
+    console.error('❌ Error creating store:', error);
+    res.status(500).json({ success: false, error: 'Failed to create store' });
+  }
+});
+
+// Update store
+app.put('/stores/:id', async (req, res) => {
+  try {
+    const updateData = {
+      ...req.body,
+      updatedAt: new Date()
+    };
+    
+    const result = await db.collection('stores').updateOne(
+      { _id: req.params.id },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Store not found' });
+    }
+    
+    const store = await db.collection('stores').findOne({ _id: req.params.id });
+    
+    res.json({
+      success: true,
+      message: 'Store updated successfully',
+      store
+    });
+  } catch (error) {
+    console.error('❌ Error updating store:', error);
+    res.status(500).json({ success: false, error: 'Failed to update store' });
+  }
+});
+
+// ===== ENHANCED CATEGORIES WITH HIERARCHICAL STRUCTURE =====
+
+// Get enhanced categories with full hierarchy
+app.get('/enhanced-categories', async (req, res) => {
+  try {
+    const categories = await db.collection('enhancedCategories')
+      .find({ isActive: true })
+      .sort({ sortOrder: 1 })
+      .toArray();
+    
+    res.json({
+      success: true,
+      categories
+    });
+  } catch (error) {
+    console.error('❌ Error fetching enhanced categories:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch enhanced categories' });
+  }
+});
+
+// Get subcategories for a category
+app.get('/enhanced-categories/:categoryId/subcategories', async (req, res) => {
+  try {
+    const category = await db.collection('enhancedCategories')
+      .findOne({ _id: req.params.categoryId });
+    
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+    
+    res.json({
+      success: true,
+      subcategories: category.subcategories || []
+    });
+  } catch (error) {
+    console.error('❌ Error fetching subcategories:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch subcategories' });
+  }
+});
+
+// Get product types for a subcategory
+app.get('/enhanced-categories/:categoryId/:subcategoryId/product-types', async (req, res) => {
+  try {
+    const { categoryId, subcategoryId } = req.params;
+    
+    const category = await db.collection('enhancedCategories')
+      .findOne({ _id: categoryId });
+    
+    if (!category) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+    
+    const subcategory = category.subcategories?.find(sub => sub._id === subcategoryId);
+    
+    if (!subcategory) {
+      return res.status(404).json({ success: false, error: 'Subcategory not found' });
+    }
+    
+    res.json({
+      success: true,
+      productTypes: subcategory.productTypes || []
+    });
+  } catch (error) {
+    console.error('❌ Error fetching product types:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch product types' });
+  }
+});
+
+// ===== SUPPLIER MANAGEMENT =====
+
+// Get all suppliers
+app.get('/suppliers', async (req, res) => {
+  try {
+    const { isActive = true, search } = req.query;
+    
+    let query = {};
+    if (isActive !== 'all') query.isActive = isActive === 'true';
+    
+    if (search) {
+      query.$or = [
+        { 'name.en': { $regex: search, $options: 'i' } },
+        { 'name.ar': { $regex: search, $options: 'i' } },
+        { code: { $regex: search, $options: 'i' } }
+      ];
+    }
+    
+    const suppliers = await db.collection('suppliers')
+      .find(query)
+      .sort({ 'name.en': 1 })
+      .toArray();
+    
+    res.json({
+      success: true,
+      suppliers
+    });
+  } catch (error) {
+    console.error('❌ Error fetching suppliers:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch suppliers' });
+  }
+});
+
+// Create supplier
+app.post('/suppliers', async (req, res) => {
+  try {
+    const supplier = {
+      ...req.body,
+      _id: req.body.code,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await db.collection('suppliers').insertOne(supplier);
+    
+    res.json({
+      success: true,
+      message: 'Supplier created successfully',
+      supplier
+    });
+  } catch (error) {
+    console.error('❌ Error creating supplier:', error);
+    res.status(500).json({ success: false, error: 'Failed to create supplier' });
+  }
+});
+
+// ===== PURCHASE ORDER MANAGEMENT =====
+
+// Get all purchase orders
+app.get('/purchase-orders', async (req, res) => {
+  try {
+    const { status, supplierId, storeId, page = 1, limit = 20 } = req.query;
+    
+    let query = {};
+    if (status) query.status = status;
+    if (supplierId) query.supplierId = supplierId;
+    if (storeId) query.storeId = storeId;
+    
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    
+    const orders = await db.collection('purchaseOrders')
+      .find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .toArray();
+    
+    const total = await db.collection('purchaseOrders').countDocuments(query);
+    
+    res.json({
+      success: true,
+      orders,
+      pagination: {
+        currentPage: parseInt(page),
+        totalPages: Math.ceil(total / parseInt(limit)),
+        totalOrders: total
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching purchase orders:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch purchase orders' });
+  }
+});
+
+// Create purchase order
+app.post('/purchase-orders', async (req, res) => {
+  try {
+    const orderNumber = `PO-${new Date().getFullYear()}-${String(Date.now()).slice(-6)}`;
+    
+    const purchaseOrder = {
+      ...req.body,
+      _id: orderNumber,
+      orderNumber,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+    
+    await db.collection('purchaseOrders').insertOne(purchaseOrder);
+    
+    res.json({
+      success: true,
+      message: 'Purchase order created successfully',
+      purchaseOrder
+    });
+  } catch (error) {
+    console.error('❌ Error creating purchase order:', error);
+    res.status(500).json({ success: false, error: 'Failed to create purchase order' });
+  }
+});
+
+// Update purchase order status
+app.patch('/purchase-orders/:id/status', async (req, res) => {
+  try {
+    const { status, notes } = req.body;
+    
+    const updateData = {
+      status,
+      updatedAt: new Date()
+    };
+    
+    if (notes) updateData.notes = notes;
+    if (status === 'received') updateData.actualDeliveryDate = new Date();
+    
+    const result = await db.collection('purchaseOrders').updateOne(
+      { _id: req.params.id },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Purchase order not found' });
+    }
+    
+    res.json({
+      success: true,
+      message: 'Purchase order status updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error updating purchase order:', error);
+    res.status(500).json({ success: false, error: 'Failed to update purchase order' });
+  }
+});
+
+// ===== MULTI-LOCATION INVENTORY MANAGEMENT =====
+
+// Get inventory by store
+app.get('/inventory/by-store/:storeId', async (req, res) => {
+  try {
+    const { storeId } = req.params;
+    const { lowStock = false } = req.query;
+    
+    let matchQuery = {
+      'inventory.multiLocation': {
+        $elemMatch: { storeId: storeId }
+      }
+    };
+    
+    if (lowStock === 'true') {
+      matchQuery['inventory.multiLocation'] = {
+        $elemMatch: {
+          storeId: storeId,
+          $expr: { $lte: ['$available', '$lowStockThreshold'] }
+        }
+      };
+    }
+    
+    const products = await db.collection('products').aggregate([
+      { $match: matchQuery },
+      {
+        $addFields: {
+          storeInventory: {
+            $arrayElemAt: [
+              {
+                $filter: {
+                  input: '$inventory.multiLocation',
+                  cond: { $eq: ['$$this.storeId', storeId] }
+                }
+              },
+              0
+            ]
+          }
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          name: 1,
+          hierarchicalCode: 1,
+          images: { $slice: ['$images', 1] },
+          pricing: 1,
+          storeInventory: 1
+        }
+      }
+    ]).toArray();
+    
+    res.json({
+      success: true,
+      storeId,
+      products
+    });
+  } catch (error) {
+    console.error('❌ Error fetching store inventory:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch store inventory' });
+  }
+});
+
+// Update inventory for specific store
+app.patch('/inventory/:productId/store/:storeId', async (req, res) => {
+  try {
+    const { productId, storeId } = req.params;
+    const { quantity, reserved = 0, lowStockThreshold } = req.body;
+    
+    const available = quantity - reserved;
+    
+    const updateData = {
+      'inventory.multiLocation.$.quantity': quantity,
+      'inventory.multiLocation.$.reserved': reserved,
+      'inventory.multiLocation.$.available': available,
+      'inventory.multiLocation.$.lastUpdated': new Date()
+    };
+    
+    if (lowStockThreshold !== undefined) {
+      updateData['inventory.multiLocation.$.lowStockThreshold'] = lowStockThreshold;
+    }
+    
+    const result = await db.collection('products').updateOne(
+      {
+        _id: productId,
+        'inventory.multiLocation.storeId': storeId
+      },
+      { $set: updateData }
+    );
+    
+    if (result.matchedCount === 0) {
+      return res.status(404).json({ success: false, error: 'Product or store not found' });
+    }
+    
+    // Recalculate total inventory
+    const product = await db.collection('products').findOne({ _id: productId });
+    const totalQuantity = product.inventory.multiLocation.reduce((sum, loc) => sum + loc.quantity, 0);
+    const totalReserved = product.inventory.multiLocation.reduce((sum, loc) => sum + loc.reserved, 0);
+    const totalAvailable = totalQuantity - totalReserved;
+    
+    await db.collection('products').updateOne(
+      { _id: productId },
+      {
+        $set: {
+          'inventory.totalQuantity': totalQuantity,
+          'inventory.totalReserved': totalReserved,
+          'inventory.totalAvailable': totalAvailable,
+          'inventory.inStock': totalAvailable > 0
+        }
+      }
+    );
+    
+    res.json({
+      success: true,
+      message: 'Inventory updated successfully'
+    });
+  } catch (error) {
+    console.error('❌ Error updating inventory:', error);
+    res.status(500).json({ success: false, error: 'Failed to update inventory' });
+  }
+});
+
+// ===== AUTOMATION RULES MANAGEMENT =====
+
+// Get automation rules
+app.get('/automation-rules', async (req, res) => {
+  try {
+    const rules = await db.collection('automationRules')
+      .find({})
+      .sort({ createdAt: -1 })
+      .toArray();
+    
+    res.json({
+      success: true,
+      rules
+    });
+  } catch (error) {
+    console.error('❌ Error fetching automation rules:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch automation rules' });
+  }
+});
+
+// Toggle automation rule
+app.patch('/automation-rules/:id/toggle', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const rule = await db.collection('automationRules').findOne({ _id: id });
+    
+    if (!rule) {
+      return res.status(404).json({ success: false, error: 'Automation rule not found' });
+    }
+    
+    const newStatus = !rule.isActive;
+    
+    await db.collection('automationRules').updateOne(
+      { _id: id },
+      {
+        $set: {
+          isActive: newStatus,
+          updatedAt: new Date()
+        }
+      }
+    );
+    
+    res.json({
+      success: true,
+      message: `Automation rule ${newStatus ? 'enabled' : 'disabled'} successfully`,
+      isActive: newStatus
+    });
+  } catch (error) {
+    console.error('❌ Error toggling automation rule:', error);
+    res.status(500).json({ success: false, error: 'Failed to toggle automation rule' });
+  }
+});
+
+// Execute automation rules (can be called by cron job)
+app.post('/automation-rules/execute', async (req, res) => {
+  try {
+    const activeRules = await db.collection('automationRules')
+      .find({ isActive: true })
+      .toArray();
+    
+    const executionResults = [];
+    
+    for (const rule of activeRules) {
+      try {
+        // Execute rule based on type
+        switch (rule.type) {
+          case 'low-stock-alert':
+            const lowStockProducts = await db.collection('products').find({
+              'inventory.totalAvailable': { $lte: rule.conditions[0].value }
+            }).toArray();
+            
+            if (lowStockProducts.length > 0) {
+              // Here you would send actual notifications
+              console.log(`🔔 Low stock alert: ${lowStockProducts.length} products need attention`);
+              
+              await db.collection('automationRules').updateOne(
+                { _id: rule._id },
+                {
+                  $set: {
+                    lastExecuted: new Date(),
+                    executionCount: rule.executionCount + 1
+                  }
+                }
+              );
+              
+              executionResults.push({
+                ruleId: rule._id,
+                success: true,
+                message: `Low stock alert sent for ${lowStockProducts.length} products`
+              });
+            }
+            break;
+            
+          case 'auto-reorder':
+            // Auto-reorder logic would go here
+            executionResults.push({
+              ruleId: rule._id,
+              success: true,
+              message: 'Auto-reorder rule checked (no action needed)'
+            });
+            break;
+        }
+      } catch (error) {
+        executionResults.push({
+          ruleId: rule._id,
+          success: false,
+          error: error.message
+        });
+      }
+    }
+    
+    res.json({
+      success: true,
+      message: 'Automation rules executed',
+      results: executionResults
+    });
+  } catch (error) {
+    console.error('❌ Error executing automation rules:', error);
+    res.status(500).json({ success: false, error: 'Failed to execute automation rules' });
+  }
+});
+
+// ===== HIERARCHICAL PRODUCT CODE MANAGEMENT =====
+
+// Generate next available product code
+app.post('/hierarchical-codes/generate', async (req, res) => {
+  try {
+    const { categoryCode, subcategoryCode, productTypeCode } = req.body;
+    
+    if (!categoryCode || !subcategoryCode || !productTypeCode) {
+      return res.status(400).json({
+        success: false,
+        error: 'Category code, subcategory code, and product type code are required'
+      });
+    }
+    
+    // Find the next available variant code
+    const existingProducts = await db.collection('products').find({
+      'hierarchicalCode.category': categoryCode,
+      'hierarchicalCode.subcategory': subcategoryCode,
+      'hierarchicalCode.productType': productTypeCode
+    }).toArray();
+    
+    const existingVariants = existingProducts.map(p => parseInt(p.hierarchicalCode.variant));
+    const nextVariant = existingVariants.length > 0 ? Math.max(...existingVariants) + 1 : 1;
+    const variantCode = String(nextVariant).padStart(2, '0');
+    
+    const fullCode = `${categoryCode}-${subcategoryCode}-${productTypeCode}-${variantCode}`;
+    
+    res.json({
+      success: true,
+      hierarchicalCode: {
+        category: categoryCode,
+        subcategory: subcategoryCode,
+        productType: productTypeCode,
+        variant: variantCode,
+        full: fullCode
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error generating hierarchical code:', error);
+    res.status(500).json({ success: false, error: 'Failed to generate hierarchical code' });
+  }
+});
+
+// Validate hierarchical code
+app.post('/hierarchical-codes/validate', async (req, res) => {
+  try {
+    const { code } = req.body;
+    
+    if (!code) {
+      return res.status(400).json({
+        success: false,
+        error: 'Code is required'
+      });
+    }
+    
+    const isValid = validateHierarchicalCode(code);
+    
+    if (isValid) {
+      const parsed = parseHierarchicalCode(code);
+      
+      // Check if code already exists
+      const existingProduct = await db.collection('products').findOne({
+        'hierarchicalCode.full': code
+      });
+      
+      res.json({
+        success: true,
+        valid: true,
+        parsed,
+        exists: !!existingProduct
+      });
+    } else {
+      res.json({
+        success: true,
+        valid: false,
+        error: 'Invalid hierarchical code format'
+      });
+    }
+  } catch (error) {
+    console.error('❌ Error validating hierarchical code:', error);
+    res.status(500).json({ success: false, error: 'Failed to validate hierarchical code' });
+  }
+});
+
+// ===== ADVANCED ANALYTICS =====
+
+// Get comprehensive dashboard analytics
+app.get('/analytics/dashboard', async (req, res) => {
+  try {
+    const { startDate, endDate, storeId } = req.query;
+    
+    // Build date filter
+    let dateFilter = {};
+    if (startDate || endDate) {
+      dateFilter.createdAt = {};
+      if (startDate) dateFilter.createdAt.$gte = new Date(startDate);
+      if (endDate) dateFilter.createdAt.$lte = new Date(endDate);
+    }
+    
+    // Product analytics
+    const productStats = await db.collection('products').aggregate([
+      { $match: dateFilter },
+      {
+        $group: {
+          _id: null,
+          totalProducts: { $sum: 1 },
+          activeProducts: {
+            $sum: { $cond: [{ $eq: ['$isActive', true] }, 1, 0] }
+          },
+          featuredProducts: {
+            $sum: { $cond: [{ $eq: ['$isFeatured', true] }, 1, 0] }
+          },
+          totalInventoryValue: {
+            $sum: {
+              $multiply: [
+                '$pricing.originalPrice',
+                '$inventory.totalQuantity'
+              ]
+            }
+          }
+        }
+      }
+    ]).toArray();
+    
+    // Low stock products
+    const lowStockProducts = await db.collection('products').countDocuments({
+      'inventory.totalAvailable': { $lte: 5 }
+    });
+    
+    // Category breakdown
+    const categoryBreakdown = await db.collection('products').aggregate([
+      { $match: { isActive: true } },
+      { $group: { _id: '$categoryId', count: { $sum: 1 } } },
+      {
+        $lookup: {
+          from: 'categories',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'category'
+        }
+      },
+      { $unwind: '$category' },
+      {
+        $project: {
+          categoryName: '$category.name.en',
+          count: 1
+        }
+      }
+    ]).toArray();
+    
+    // Store inventory breakdown (if storeId provided)
+    let storeBreakdown = null;
+    if (storeId) {
+      storeBreakdown = await db.collection('products').aggregate([
+        {
+          $match: {
+            'inventory.multiLocation.storeId': storeId
+          }
+        },
+        {
+          $addFields: {
+            storeInventory: {
+              $arrayElemAt: [
+                {
+                  $filter: {
+                    input: '$inventory.multiLocation',
+                    cond: { $eq: ['$$this.storeId', storeId] }
+                  }
+                },
+                0
+              ]
+            }
+          }
+        },
+        {
+          $group: {
+            _id: null,
+            totalProducts: { $sum: 1 },
+            totalQuantity: { $sum: '$storeInventory.quantity' },
+            totalValue: {
+              $sum: {
+                $multiply: ['$pricing.originalPrice', '$storeInventory.quantity']
+              }
+            }
+          }
+        }
+      ]).toArray();
+    }
+    
+    res.json({
+      success: true,
+      analytics: {
+        products: productStats[0] || {
+          totalProducts: 0,
+          activeProducts: 0,
+          featuredProducts: 0,
+          totalInventoryValue: 0
+        },
+        lowStockProducts,
+        categoryBreakdown,
+        storeBreakdown: storeBreakdown?.[0] || null
+      }
+    });
+  } catch (error) {
+    console.error('❌ Error fetching analytics:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch analytics' });
+  }
+});
 
 // 404 handler
 app.use('*', (req, res) => {

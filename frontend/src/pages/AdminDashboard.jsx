@@ -6,6 +6,11 @@ import AdminProducts from './admin/AdminProducts';
 import AdminInventory from './admin/AdminInventory';
 import AdminUsers from './admin/AdminUsers';
 import AdminDashboardHome from './admin/AdminDashboardHome';
+import AdminStores from './admin/AdminStores';
+import AdminSuppliers from './admin/AdminSuppliers';
+import AdminPurchaseOrders from './admin/AdminPurchaseOrders';
+import AdminAnalytics from './admin/AdminAnalytics';
+import AdminAutomation from './admin/AdminAutomation';
 import axios from 'axios';
 
 function AdminDashboard() {
@@ -15,9 +20,14 @@ function AdminDashboard() {
 
   const navigation = [
     { name: 'Dashboard', href: '/admin', icon: '📊' },
-    { name: 'Orders', href: '/admin/orders', icon: '📦' },
     { name: 'Products', href: '/admin/products', icon: '🛍️' },
     { name: 'Inventory', href: '/admin/inventory', icon: '📋' },
+    { name: 'Orders', href: '/admin/orders', icon: '📦' },
+    { name: 'Stores & Branches', href: '/admin/stores', icon: '🏪' },
+    { name: 'Suppliers', href: '/admin/suppliers', icon: '🤝' },
+    { name: 'Purchase Orders', href: '/admin/purchase-orders', icon: '📝' },
+    { name: 'Analytics', href: '/admin/analytics', icon: '📈' },
+    { name: 'Automation', href: '/admin/automation', icon: '🤖' },
     { name: 'Users', href: '/admin/users', icon: '👥' },
   ];
 
@@ -108,9 +118,14 @@ function AdminDashboard() {
           <div className="p-6">
             <Routes>
               <Route path="/" element={<AdminDashboardHome />} />
-              <Route path="/orders" element={<AdminOrders />} />
               <Route path="/products" element={<AdminProducts />} />
               <Route path="/inventory" element={<AdminInventory />} />
+              <Route path="/orders" element={<AdminOrders />} />
+              <Route path="/stores" element={<AdminStores />} />
+              <Route path="/suppliers" element={<AdminSuppliers />} />
+              <Route path="/purchase-orders" element={<AdminPurchaseOrders />} />
+              <Route path="/analytics" element={<AdminAnalytics />} />
+              <Route path="/automation" element={<AdminAutomation />} />
               <Route path="/users" element={<AdminUsers />} />
             </Routes>
           </div>
