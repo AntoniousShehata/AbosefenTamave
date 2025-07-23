@@ -36,7 +36,7 @@ function SearchResults() {
     const startTime = Date.now();
     
     try {
-      const response = await axios.get(`http://localhost:3003/products/smart-search?q=${encodeURIComponent(searchTerm)}&limit=20&sortBy=${sortOption}&includeSuggestions=true`);
+      const response = await axios.get(`http://localhost:8080/api/products/smart-search?q=${encodeURIComponent(searchTerm)}&limit=20&sortBy=${sortOption}&includeSuggestions=true`);
       
       if (response.data.success) {
         setResults(response.data.results);

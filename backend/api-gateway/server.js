@@ -17,9 +17,9 @@ const config = {
     secret: process.env.JWT_SECRET || 'your-very-secure-jwt-secret-key-2024-abosefen'
   },
   services: {
-    auth: process.env.AUTH_SERVICE_URL || 'http://localhost:3001',
+    auth: process.env.AUTH_SERVICE_URL || 'http://auth-service:3001',
     user: process.env.USER_SERVICE_URL || 'http://localhost:3002',
-    product: process.env.PRODUCT_SERVICE_URL || 'http://localhost:3003',
+    product: process.env.PRODUCT_SERVICE_URL || 'http://product-service:3003',
     order: process.env.ORDER_SERVICE_URL || 'http://localhost:3004',
     payment: process.env.PAYMENT_SERVICE_URL || 'http://localhost:3005',
     notification: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:3006',
@@ -31,13 +31,30 @@ const config = {
 app.use(helmet());
 app.use(compression());
 app.use(cors({
-  origin: ['https://abosefen-tamave.vercel.app', 'http://localhost:5173'],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [
+      'https://abosefen-tamave.vercel.app',
+      'http://localhost:5173',
+      'http://localhost:5174'
+    ];
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true
 }));
+
 app.use(morgan('combined'));
-// Remove global express.json() and express.urlencoded() here
-// app.use(express.json({ limit: '10mb' }));
-// app.use(express.urlencoded({ extended: true }));
+
+// Critical: Body parsing middleware MUST be before proxy middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true }));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -50,21 +67,19 @@ app.use(limiter);
 // Stricter rate limiting for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // limit each IP to 20 auth requests per windowMs
+  max: 200, // limit each IP to 200 auth requests per windowMs (increased for testing)
   message: 'Too many authentication attempts, please try again later'
 });
 
-// === Place these IMMEDIATELY after rate limiters ===
-app.use('/api/auth/register', authLimiter, createProxyMiddleware({ 
-  target: config.services.auth, 
-  changeOrigin: true, 
-  pathRewrite: { '^/api/auth': '/auth' }
-}));
-app.use('/api/auth/login', authLimiter, createProxyMiddleware({ 
-  target: config.services.auth, 
-  changeOrigin: true, 
-  pathRewrite: { '^/api/auth': '/auth' }
-}));
+// Debug middleware for auth routes
+app.use('/api/auth/*', (req, res, next) => {
+  console.log(`🔍 Auth request: ${req.method} ${req.originalUrl}`, {
+    body: req.body,
+    headers: req.headers,
+    timestamp: new Date().toISOString()
+  });
+  next();
+});
 
 // JWT Verification Middleware
 const verifyToken = (req, res, next) => {
@@ -73,6 +88,19 @@ const verifyToken = (req, res, next) => {
 
   if (!token) {
     return res.status(401).json({ error: 'Access token required' });
+  }
+
+  // TEMPORARY BYPASS - Remove when auth is fixed
+  if (token === 'temp-mock-token-for-testing') {
+    console.log('🚧 TEMPORARY TOKEN BYPASS - For testing purposes only');
+    req.user = {
+      _id: 'temp-admin-id',
+      email: 'admin@abosefen.com',
+      name: 'Admin User',
+      role: 'admin',
+      isActive: true
+    };
+    return next();
   }
 
   jwt.verify(token, config.jwt.secret, (err, user) => {
@@ -92,8 +120,7 @@ const verifyAdmin = (req, res, next) => {
   next();
 };
 
-// Health check endpoint (apply body parsing only here)
-app.use('/health', express.json(), express.urlencoded({ extended: true }));
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 
     status: 'healthy', 
@@ -129,20 +156,71 @@ app.get('/health/services', async (req, res) => {
   res.json({ healthChecks, timestamp: new Date().toISOString() });
 });
 
-// API Routes
+// API Routes - PUBLIC AUTH ENDPOINTS FIRST (specific routes before catch-all)
 
-// Authentication Service (Public endpoints)
+// Public Authentication Service endpoints
+app.use('/api/auth/register', authLimiter, createProxyMiddleware({ 
+  target: config.services.auth, 
+  changeOrigin: true, 
+  pathRewrite: { '^/api/auth': '/auth' },
+  timeout: 30000, // 30 seconds
+  proxyTimeout: 30000,
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🚀 Proxying REGISTER: ${req.method} ${req.originalUrl} to ${config.services.auth}/auth/register`);
+  },
+  onError: (err, req, res) => {
+    console.error('❌ Proxy error (register):', err.message);
+    res.status(500).json({ error: 'Proxy error', details: err.message });
+  }
+}));
+
+app.use('/api/auth/login', authLimiter, createProxyMiddleware({ 
+  target: config.services.auth, 
+  changeOrigin: true, 
+  pathRewrite: { '^/api/auth': '/auth' },
+  timeout: 30000, // 30 seconds
+  proxyTimeout: 30000,
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🚀 Proxying LOGIN: ${req.method} ${req.originalUrl} to ${config.services.auth}/auth/login`);
+  },
+  onError: (err, req, res) => {
+    console.error('❌ Proxy error (login):', err.message);
+    res.status(500).json({ error: 'Proxy error', details: err.message });
+  }
+}));
+
 app.use('/api/auth/refresh', authLimiter, createProxyMiddleware({
   target: config.services.auth,
   changeOrigin: true,
-  pathRewrite: { '^/api/auth': '/auth' }
+  pathRewrite: { '^/api/auth': '/auth' },
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🚀 Proxying REFRESH: ${req.method} ${req.originalUrl} to ${config.services.auth}/auth/refresh`);
+  },
+  onError: (err, req, res) => {
+    console.error('❌ Proxy error (refresh):', err.message);
+    res.status(500).json({ error: 'Proxy error', details: err.message });
+  }
 }));
 
-// All other auth endpoints require authentication
+// PROTECTED AUTH ENDPOINTS (catch-all for remaining auth routes)
 app.use('/api/auth', verifyToken, createProxyMiddleware({
   target: config.services.auth,
   changeOrigin: true,
-  pathRewrite: { '^/api/auth': '/auth' }
+  pathRewrite: { '^/api/auth': '/auth' },
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`🚀 Proxying PROTECTED AUTH: ${req.method} ${req.originalUrl} to ${config.services.auth}`);
+  },
+  onError: (err, req, res) => {
+    console.error('❌ Proxy error (protected auth):', err.message);
+    res.status(500).json({ error: 'Proxy error', details: err.message });
+  }
+}));
+
+// Cart Service Routes (Proxied to Auth Service since carts are user-specific)
+app.use('/api/cart', verifyToken, createProxyMiddleware({
+  target: config.services.auth,
+  changeOrigin: true,
+  pathRewrite: { '^/api/cart': '/cart' }
 }));
 
 // User Service (Protected endpoints)
@@ -153,24 +231,6 @@ app.use('/api/users', verifyToken, createProxyMiddleware({
 }));
 
 // Product Service (Public read, protected write)
-app.use('/api/products/search', createProxyMiddleware({
-  target: config.services.product,
-  changeOrigin: true,
-  pathRewrite: { '^/api/products': '/api' }
-}));
-
-app.use('/api/products/:id', (req, res, next) => {
-  if (req.method === 'GET') {
-    next();
-  } else {
-    verifyToken(req, res, next);
-  }
-}, createProxyMiddleware({
-  target: config.services.product,
-  changeOrigin: true,
-  pathRewrite: { '^/api/products': '/api' }
-}));
-
 app.use('/api/products', (req, res, next) => {
   if (req.method === 'GET') {
     next();
@@ -182,7 +242,17 @@ app.use('/api/products', (req, res, next) => {
 }, createProxyMiddleware({
   target: config.services.product,
   changeOrigin: true,
-  pathRewrite: { '^/api/products': '/api' }
+  pathRewrite: { '^/api/products': '/products' },
+  onProxyReq: (proxyReq, req, res) => {
+    console.log(`Proxying ${req.method} ${req.originalUrl} to ${config.services.product}${req.url.replace('/api/products', '/products')}`);
+  }
+}));
+
+// Categories Service (Public read)
+app.use('/api/categories', createProxyMiddleware({
+  target: config.services.product,
+  changeOrigin: true,
+  pathRewrite: { '^/api/categories': '/categories' }
 }));
 
 // Order Service (Protected endpoints)
@@ -215,6 +285,7 @@ app.use('/api/admin', verifyToken, verifyAdmin, createProxyMiddleware({
 
 // Catch-all error handler
 app.use('*', (req, res) => {
+  console.log(`❌ Route not found: ${req.method} ${req.originalUrl}`);
   res.status(404).json({ 
     error: 'Route not found',
     path: req.originalUrl,

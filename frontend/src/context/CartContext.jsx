@@ -1,29 +1,39 @@
 import { createContext, useReducer, useContext, useEffect } from 'react';
 import { useToast } from '../components/Toast';
+import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
-// Load cart from localStorage
-const loadCartFromStorage = () => {
+// Load cart from localStorage (guest cart)
+const loadGuestCartFromStorage = () => {
   try {
-    const savedCart = localStorage.getItem('abosefen_cart');
+    const savedCart = localStorage.getItem('abosefen_guest_cart');
     return savedCart ? JSON.parse(savedCart) : [];
   } catch (error) {
-    console.error('Error loading cart from storage:', error);
+    console.error('Error loading guest cart from storage:', error);
     return [];
   }
 };
 
-// Save cart to localStorage
-const saveCartToStorage = (cart) => {
+// Save guest cart to localStorage
+const saveGuestCartToStorage = (cart) => {
   try {
-    localStorage.setItem('abosefen_cart', JSON.stringify(cart));
+    localStorage.setItem('abosefen_guest_cart', JSON.stringify(cart));
   } catch (error) {
-    console.error('Error saving cart to storage:', error);
+    console.error('Error saving guest cart to storage:', error);
   }
 };
 
-const initialState = loadCartFromStorage();
+// Clear guest cart from localStorage
+const clearGuestCartFromStorage = () => {
+  try {
+    localStorage.removeItem('abosefen_guest_cart');
+  } catch (error) {
+    console.error('Error clearing guest cart from storage:', error);
+  }
+};
+
+const initialState = loadGuestCartFromStorage();
 
 function cartReducer(state, action) {
   let newState;
@@ -94,19 +104,49 @@ function cartReducer(state, action) {
       newState = action.payload;
       break;
 
+
+
     default:
       return state;
   }
 
-  // Save to localStorage whenever state changes
-  saveCartToStorage(newState);
   return newState;
 }
 
 export function CartProvider({ children }) {
   const [cart, dispatch] = useReducer(cartReducer, initialState);
+  const { user, isAuthenticated } = useAuth();
 
-  // Cart utilities with toast notifications
+  // Handle authentication changes for cart
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // User logged in - cart continues to use localStorage
+      console.log('User logged in, cart will continue using localStorage');
+    } else if (!isAuthenticated) {
+      // User logged out - cart continues to use localStorage
+      console.log('User logged out, cart continues using localStorage');
+    }
+  }, [isAuthenticated, user]);
+
+  // Auto-save cart changes
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      // For now, save to localStorage until cart service is fully implemented
+      // TODO: Implement real backend cart sync when cart service is ready
+      saveGuestCartToStorage(cart);
+    } else {
+      // Save to localStorage for guest users
+      saveGuestCartToStorage(cart);
+    }
+  }, [cart, isAuthenticated, user]);
+
+  // Cart now uses localStorage exclusively - no backend sync needed
+
+  // Cart now uses localStorage exclusively
+
+  // Cart uses localStorage exclusively - no backend save needed
+
+  // Cart utilities with authentication-aware functionality
   const cartUtils = {
     // Add item to cart
     addItem: (product, quantity = 1) => {
@@ -119,7 +159,6 @@ export function CartProvider({ children }) {
         });
 
         // Toast notification will be handled by the calling component
-        // to avoid circular dependency with useToast
         
       } catch (error) {
         console.error('Error adding item to cart:', error);
@@ -178,6 +217,9 @@ export function CartProvider({ children }) {
     clearCart: () => {
       try {
         dispatch({ type: 'CLEAR_CART' });
+        
+        // Clear from localStorage (works for all users)
+        clearGuestCartFromStorage();
       } catch (error) {
         console.error('Error clearing cart:', error);
         throw error;
@@ -221,6 +263,11 @@ export function CartProvider({ children }) {
         currency: 'EGP',
         minimumFractionDigits: 0
       }).format(price);
+    },
+
+    // Get cart type (user or guest)
+    getCartType: () => {
+      return isAuthenticated && user ? 'user' : 'guest';
     }
   };
 

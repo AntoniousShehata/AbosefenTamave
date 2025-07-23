@@ -15,8 +15,8 @@ function Home() {
       try {
         // Fetch categories and featured products in parallel
         const [categoriesResponse, featuredResponse] = await Promise.all([
-          axios.get('http://localhost:3003/categories'),
-          axios.get('http://localhost:3003/products/featured?limit=6')
+          axios.get('http://localhost:8080/api/categories'),
+          axios.get('http://localhost:8080/api/products/featured?limit=6')
         ]);
 
         if (categoriesResponse.data.success) {
