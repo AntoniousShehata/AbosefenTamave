@@ -120,6 +120,29 @@ const verifyAdmin = (req, res, next) => {
   next();
 };
 
+// Root endpoint - API information
+app.get('/', (req, res) => {
+  res.status(200).json({
+    name: 'Abosefen E-commerce API Gateway',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      serviceHealth: '/health/services',
+      auth: '/api/auth/*',
+      products: '/api/products/*',
+      categories: '/api/categories/*',
+      cart: '/api/cart/*',
+      orders: '/api/orders/*',
+      payments: '/api/payments/*',
+      notifications: '/api/notifications/*',
+      admin: '/api/admin/*'
+    },
+    documentation: 'https://github.com/abosefen/abosefen-app'
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.status(200).json({ 

@@ -2868,7 +2868,41 @@ app.get('/analytics/dashboard', async (req, res) => {
   }
 });
 
-// 404 handler
+// Manual initialization endpoint for enhanced categories
+app.post('/init-enhanced-categories', async (req, res) => {
+  try {
+    console.log('🔄 Manually initializing enhanced categories...');
+    
+    // Clear existing enhanced categories
+    const deleteResult = await db.collection('enhancedCategories').deleteMany({});
+    console.log(`🗑️ Deleted ${deleteResult.deletedCount} existing enhanced categories`);
+    
+    // Insert new enhanced categories
+    const insertResult = await db.collection('enhancedCategories').insertMany(enhancedCategories);
+    console.log(`✅ Inserted ${insertResult.insertedCount} enhanced categories`);
+    
+    // Verify the data
+    const count = await db.collection('enhancedCategories').countDocuments();
+    console.log(`📊 Total enhanced categories in database: ${count}`);
+    
+    res.json({
+      success: true,
+      message: 'Enhanced categories initialized successfully',
+      categoriesInserted: insertResult.insertedCount,
+      totalCategories: count
+    });
+    
+  } catch (error) {
+    console.error('❌ Error initializing enhanced categories:', error);
+    res.status(500).json({ 
+      success: false, 
+      error: 'Failed to initialize enhanced categories',
+      details: error.message 
+    });
+  }
+});
+
+// 404 handler - MUST be the last route defined
 app.use('*', (req, res) => {
   res.status(404).json({ 
     success: false, 
