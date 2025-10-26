@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 
 function SmartSearch({ onSearchResults, onSearchComplete, className = '' }) {
   const [query, setQuery] = useState('');
@@ -73,7 +74,7 @@ function SmartSearch({ onSearchResults, onSearchComplete, className = '' }) {
   // Load trending searches
   const loadTrendingSearches = async () => {
     try {
-      const response = await axios.get('http://localhost:8080/api/products/trending?limit=6');
+      const response = await axios.get(`${PRODUCTS_API_URL}/trending?limit=6`, { headers: API_HEADERS });
       if (response.data.success) {
         setTrendingSearches(response.data.trending);
       }
@@ -133,7 +134,7 @@ function SmartSearch({ onSearchResults, onSearchComplete, className = '' }) {
   // Fetch autocomplete suggestions
   const fetchAutoComplete = async (searchTerm) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/products/autocomplete?q=${encodeURIComponent(searchTerm)}&limit=8`);
+      const response = await axios.get(`${PRODUCTS_API_URL}/autocomplete?q=${encodeURIComponent(searchTerm)}&limit=8`, { headers: API_HEADERS });
       if (response.data.success) {
         setSuggestions(response.data.suggestions);
       }
@@ -163,7 +164,7 @@ function SmartSearch({ onSearchResults, onSearchComplete, className = '' }) {
       if (filters.maxPrice) params.append('maxPrice', filters.maxPrice);
       if (filters.sortBy && filters.sortBy !== 'relevance') params.append('sort', filters.sortBy);
 
-      const response = await axios.get(`http://localhost:8080/api/products/smart-search?${params}`);
+      const response = await axios.get(`${PRODUCTS_API_URL}/smart-search?${params}`, { headers: API_HEADERS });
       
       if (response.data.success) {
         saveRecentSearch(searchTerm);

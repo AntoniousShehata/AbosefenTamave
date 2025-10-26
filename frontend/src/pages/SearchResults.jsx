@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../components/Toast';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 import SmartSearch from '../components/SmartSearch';
 import axios from 'axios';
 
@@ -36,7 +37,7 @@ function SearchResults() {
     const startTime = Date.now();
     
     try {
-      const response = await axios.get(`http://localhost:8080/api/products/smart-search?q=${encodeURIComponent(searchTerm)}&limit=20&sortBy=${sortOption}&includeSuggestions=true`);
+      const response = await axios.get(`${PRODUCTS_API_URL}/smart-search?q=${encodeURIComponent(searchTerm)}&limit=20&sortBy=${sortOption}&includeSuggestions=true`, { headers: API_HEADERS });
       
       if (response.data.success) {
         setResults(response.data.results);
