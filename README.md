@@ -138,7 +138,9 @@ POST   /api/categories                  - Create category (admin)
 ### **Environment Variables**
 ```bash
 # Frontend (.env)
-VITE_API_URL=http://localhost:8080/api
+VITE_API_URL=http://localhost:3001  # For local development
+# or
+VITE_API_URL=https://your-ngrok-url.ngrok-free.app  # For Vercel deployment
 
 # Backend (backend/config.env)
 MONGODB_URI=mongodb://admin:AbosefenMongo2024!@mongodb:27017/abosefen-auth?authSource=admin
@@ -149,7 +151,19 @@ JWT_EXPIRE=7d
 ### **Database Configuration**
 - **MongoDB 7.0** with authentication
 - **Separate databases** per microservice
+  - `abosefen-auth` - Users and authentication
+  - `abosefen-catalog` - Products and categories
 - **Auto-initialization** with sample data
+
+### **Admin Credentials**
+```
+Email:    admin@abosefen.com
+Password: Tmaher123@
+```
+
+### **Database Admin UI**
+- **Mongo Express**: http://localhost:8081
+- **Login**: admin / admin
 
 ## 📱 Mobile Features
 
@@ -245,6 +259,58 @@ docker-compose down # Stop all services
 - **Mobile Performance Score**: 90+
 - **Accessibility Score**: 95+
 - **SEO Score**: 90+
+
+## 🌐 Deployment
+
+### **Deploy to Vercel (Frontend)**
+
+1. **Push to GitHub** (if not already)
+2. **Connect to Vercel**:
+   - Go to https://vercel.com
+   - Import your repository
+   - Vercel will auto-detect Vite configuration
+
+3. **Set Environment Variables** in Vercel:
+   - Go to Project Settings → Environment Variables
+   - Add: `VITE_API_URL` = `https://your-ngrok-url.ngrok-free.app`
+
+4. **Deploy**: Vercel will automatically deploy
+
+### **Expose Local Backend with Ngrok**
+
+For connecting Vercel frontend to your local database:
+
+1. **Install Ngrok**:
+   - Download from https://ngrok.com/download
+   - Extract to a folder (e.g., `C:\Users\YourName\ngrok\`)
+   - Get authtoken from https://dashboard.ngrok.com
+
+2. **Configure Ngrok**:
+   ```powershell
+   ngrok config add-authtoken YOUR_TOKEN
+   ```
+
+3. **Start Docker Services**:
+   ```powershell
+   cd backend
+   docker-compose up -d
+   ```
+
+4. **Expose Auth Service**:
+   ```powershell
+   ngrok http 3001
+   ```
+
+5. **Get Public URL**: Copy the `https://xxx.ngrok-free.app` URL from terminal
+
+6. **Update Vercel**: Set `VITE_API_URL` to your ngrok URL and redeploy
+
+### **Helper Scripts**
+
+Use the password reset script when needed:
+```powershell
+node reset-admin-password.js
+```
 
 ## 🌍 Browser Support
 

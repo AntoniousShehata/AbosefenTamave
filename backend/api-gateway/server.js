@@ -36,12 +36,12 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      'https://abosefen-tamave.vercel.app',
       'http://localhost:5173',
       'http://localhost:5174'
     ];
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Allow all Vercel deployments or whitelisted origins
+    if (origin && (origin.includes('vercel.app') || allowedOrigins.includes(origin))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
