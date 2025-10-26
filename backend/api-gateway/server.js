@@ -36,12 +36,12 @@ app.use(cors({
     if (!origin) return callback(null, true);
     
     const allowedOrigins = [
-      'https://abosefen-tamave.vercel.app',
       'http://localhost:5173',
       'http://localhost:5174'
     ];
     
-    if (allowedOrigins.indexOf(origin) !== -1) {
+    // Allow all Vercel deployments or whitelisted origins
+    if (origin && (origin.includes('vercel.app') || allowedOrigins.includes(origin))) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -119,6 +119,29 @@ const verifyAdmin = (req, res, next) => {
   }
   next();
 };
+
+// Root endpoint - API information
+app.get('/', (req, res) => {
+  res.status(200).json({
+    name: 'Abosefen E-commerce API Gateway',
+    version: '1.0.0',
+    status: 'running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      serviceHealth: '/health/services',
+      auth: '/api/auth/*',
+      products: '/api/products/*',
+      categories: '/api/categories/*',
+      cart: '/api/cart/*',
+      orders: '/api/orders/*',
+      payments: '/api/payments/*',
+      notifications: '/api/notifications/*',
+      admin: '/api/admin/*'
+    },
+    documentation: 'https://github.com/abosefen/abosefen-app'
+  });
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
