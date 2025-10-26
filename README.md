@@ -239,6 +239,128 @@ Password: Tmaher123@
 - **Mongo Express**: http://localhost:8081/mongo-admin/
 - **Login**: admin / admin
 
+## 🌐 Working with Ngrok (External Access)
+
+### **What is Ngrok?**
+Ngrok creates a secure tunnel from the public internet to your local machine. This allows:
+- ✅ Accessing your local backend from Vercel (deployed frontend)
+- ✅ Testing on mobile devices (phone, tablet) from anywhere
+- ✅ Sharing your app with others before final deployment
+
+### **Initial Setup (One Time)**
+
+1. **Download & Install Ngrok**
+   - Visit: https://ngrok.com/download
+   - Download for Windows
+   - Extract `ngrok.exe` to any folder (e.g., `C:\ngrok\`)
+   - Add to PATH or use full path when running
+
+2. **Sign Up & Get Auth Token**
+   - Create free account at: https://dashboard.ngrok.com/signup
+   - Get your auth token from: https://dashboard.ngrok.com/get-started/your-authtoken
+   - Run once: `ngrok config add-authtoken YOUR_TOKEN`
+
+### **Daily Usage (Every Time You Start)**
+
+#### **Step 1: Start Your Backend**
+```powershell
+cd backend
+docker-compose up -d
+```
+
+#### **Step 2: Start Ngrok Tunnel**
+```powershell
+# Option 1: Simple command
+ngrok http 8080 --host-header=rewrite
+
+# Option 2: If above doesn't work
+ngrok http 8080
+```
+
+**Important Notes:**
+- ⚠️ **Free tier** = 1 tunnel at a time
+- ⚠️ **URL changes** every time you restart ngrok
+- ⚠️ Keep the ngrok window **open** while using the app
+
+#### **Step 3: Copy Your Ngrok URL**
+From the ngrok window, copy the "Forwarding" URL:
+```
+Forwarding: https://abc123def456.ngrok-free.app -> http://localhost:8080
+```
+Copy: `https://abc123def456.ngrok-free.app`
+
+#### **Step 4: Update Vercel**
+1. Go to: https://vercel.com/[your-username]/abosefen-tamave/settings/environment-variables
+2. Edit `VITE_API_URL` value to your new ngrok URL
+3. **Important**: Use the **base URL only** (no `/api` or other paths)
+   ```
+   VITE_API_URL = https://abc123def456.ngrok-free.app
+   ```
+4. Save
+5. Redeploy: Deployments → "..." → "Redeploy" → **Uncheck** "Use existing build cache"
+
+#### **Step 5: Test**
+- **From laptop**: https://abosefen-tamave.vercel.app
+- **From phone**: Same URL
+- Login: `admin@abosefen.com` / `Tmaher123@`
+
+### **When Ngrok URL Changes**
+
+Every time you **restart ngrok**, the URL changes. You must:
+
+1. ✅ Get new ngrok URL from the terminal
+2. ✅ Update `VITE_API_URL` in Vercel
+3. ✅ Redeploy Vercel with **fresh build**
+4. ✅ Wait 2-3 minutes for deployment
+
+### **Ngrok Best Practices**
+
+✅ **DO:**
+- Keep ngrok window open while using the app
+- Note down your ngrok URL each session
+- Update Vercel whenever ngrok restarts
+- Use `--host-header=rewrite` flag for best compatibility
+
+❌ **DON'T:**
+- Close ngrok window while testing
+- Forget to update Vercel after restart
+- Try to use multiple tunnels on free tier
+- Add paths to `VITE_API_URL` in Vercel
+
+### **Ngrok Troubleshooting**
+
+**Problem**: "Only 1 tunnel allowed"  
+**Solution**: Stop all ngrok processes before starting new one
+```powershell
+Get-Process ngrok | Stop-Process
+ngrok http 8080 --host-header=rewrite
+```
+
+**Problem**: Ngrok shows browser warning page  
+**Solution**: Already fixed! The app includes `ngrok-skip-browser-warning` header in all API calls.
+
+**Problem**: Products/Search not loading  
+**Solution**: Check if `VITE_API_URL` in Vercel matches your current ngrok URL
+
+**Problem**: "ERR_NGROK_3004" error  
+**Solution**: 
+1. Restart Docker: `cd backend && docker-compose restart`
+2. Restart ngrok
+3. Update Vercel with new URL
+
+### **Alternative: Paid Ngrok ($8/month)**
+
+Benefits:
+- ✅ **Static domain** (URL doesn't change)
+- ✅ Multiple tunnels
+- ✅ No browser warning
+- ✅ Custom subdomains
+
+With paid plan:
+1. Set up static domain once
+2. No need to update Vercel every time
+3. Just start ngrok with your domain: `ngrok http 8080 --domain=your-static-domain.ngrok-free.app`
+
 ## 🔧 Troubleshooting
 
 ### **Login Failed / Route Not Found**
