@@ -110,8 +110,8 @@ function Header() {
                 )}
                 
                 <div className="flex items-center gap-2">
-                  <span className="text-xs lg:text-sm hidden lg:inline">
-                    Hi, {user?.firstName}!
+                  <span className="text-xs lg:text-sm hidden lg:inline font-medium">
+                    {user?.firstName} {user?.lastName}
                   </span>
                   <button
                     onClick={handleLogout}
@@ -253,7 +253,8 @@ function Header() {
                     
                     <div className="border-t border-white/20 pt-4 mt-4">
                       <div className="nav-link">
-                        <span className="text-sm opacity-90">Welcome, {user?.firstName}!</span>
+                        <span className="text-sm font-medium">{user?.firstName} {user?.lastName}</span>
+                        <span className="text-xs opacity-75 block mt-1">{user?.email}</span>
                       </div>
                       <button
                         onClick={handleLogout}

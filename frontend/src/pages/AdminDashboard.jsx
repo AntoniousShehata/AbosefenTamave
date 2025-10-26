@@ -63,9 +63,15 @@ function AdminDashboard() {
         </nav>
         
         <div className="absolute bottom-4 left-4 right-4">
-          <div className="bg-primary-dark rounded-lg p-3">
-            <p className="text-white text-sm">Logged in as:</p>
-            <p className="text-gray-300 text-xs">{user?.firstName} {user?.lastName}</p>
+          <div className="bg-primary-dark rounded-lg p-4">
+            <p className="text-gray-400 text-xs uppercase tracking-wide mb-2">Logged in as:</p>
+            <p className="text-white text-sm font-semibold">{user?.firstName} {user?.lastName}</p>
+            <p className="text-gray-300 text-xs mt-1">{user?.email}</p>
+            <div className="mt-2 pt-2 border-t border-gray-600">
+              <span className="inline-block px-2 py-1 text-xs font-medium bg-secondary text-white rounded">
+                {user?.role?.toUpperCase() || 'ADMIN'}
+              </span>
+            </div>
           </div>
         </div>
       </div>
