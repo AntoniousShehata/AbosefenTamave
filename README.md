@@ -605,8 +605,101 @@ For connecting Vercel frontend to your local database:
 
 Use the password reset script when needed:
 ```powershell
-node reset-admin-password.js
+node reset-password.js <email> <new-password>
+node list-all-users.js
 ```
+
+## ⚙️ Best Practices & Development Guidelines
+
+### **✅ API Integration Rules**
+
+**NEVER hardcode API URLs in components!** Always use the centralized configuration:
+
+```javascript
+// ❌ BAD - Will only work locally
+import axios from 'axios';
+const response = await axios.get('http://localhost:8080/api/products');
+
+// ✅ GOOD - Works everywhere (laptop, mobile, Vercel)
+import axios from 'axios';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
+const response = await axios.get(PRODUCTS_API_URL, { headers: API_HEADERS });
+```
+
+### **📱 Cross-Platform Testing**
+
+**ALWAYS test on multiple devices before pushing:**
+
+1. **Desktop/Laptop**: Test in Chrome, Firefox, Safari
+2. **Mobile**: Test on actual iPhone/Android (not just browser DevTools)
+3. **Tablet**: Test on iPad or Android tablet if available
+4. **Different Networks**: Test on WiFi and mobile data
+
+### **🔄 Deployment Workflow**
+
+**Standard workflow for updates:**
+
+```powershell
+# 1. Make code changes
+# 2. Test locally
+npm run dev
+
+# 3. Test through ngrok (simulate production)
+ngrok http 8080 --host-header=rewrite
+# Update VITE_API_URL in Vercel, redeploy, test on mobile
+
+# 4. Commit and push
+git add .
+git commit -m "descriptive message"
+git push origin main
+
+# 5. Verify Vercel deployment
+# Check https://vercel.com/[your-username]/abosefen-tamave
+
+# 6. Final test on production
+# Test on laptop AND mobile
+```
+
+### **🚨 Common Pitfalls to Avoid**
+
+1. **Hardcoded Localhost URLs**
+   - ❌ `http://localhost:8080`
+   - ✅ Use `API_URL`, `PRODUCTS_API_URL`, etc. from `config/api.js`
+
+2. **Missing Ngrok Headers**
+   - ❌ `axios.get(url)`
+   - ✅ `axios.get(url, { headers: API_HEADERS })`
+
+3. **Forgetting to Test on Mobile**
+   - ✅ Always test on real mobile device before declaring "done"
+
+4. **Not Updating Vercel Environment Variables**
+   - When ngrok restarts, URL changes
+   - ✅ Update `VITE_API_URL` in Vercel and force redeploy (uncheck cache)
+
+5. **Assuming Desktop = Mobile**
+   - Desktop working ≠ Mobile working
+   - ✅ Test both every time
+
+### **📝 Code Quality Standards**
+
+- Use ESLint and fix all warnings
+- Write semantic HTML
+- Use Tailwind utility classes consistently
+- Keep components small and focused
+- Add PropTypes or TypeScript for type safety
+- Comment complex logic
+- Use descriptive variable/function names
+
+### **🔐 Security Best Practices**
+
+- Never commit `.env` files
+- Never expose API keys in frontend code
+- Always hash passwords with bcrypt (12+ rounds)
+- Use JWT tokens for authentication
+- Validate all user inputs
+- Sanitize data before database operations
+- Use CORS properly (whitelist, not wildcard)
 
 ## 🌍 Browser Support
 
