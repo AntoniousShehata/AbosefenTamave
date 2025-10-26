@@ -1,5 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
+import { AUTH_API_URL } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -49,8 +50,6 @@ function authReducer(state, action) {
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
-  const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3001/auth';
-
   // Load user from localStorage on component mount
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -77,7 +76,7 @@ export function AuthProvider({ children }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await axios.post(`${API_BASE}/login`, {
+      const response = await axios.post(`${AUTH_API_URL}/login`, {
         email,
         password
       });
@@ -109,7 +108,7 @@ export function AuthProvider({ children }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await axios.post(`${API_BASE}/register`, userData);
+      const response = await axios.post(`${AUTH_API_URL}/register`, userData);
       
       const { user, token } = response.data;
 
