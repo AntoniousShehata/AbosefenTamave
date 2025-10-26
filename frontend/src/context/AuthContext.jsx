@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer, useEffect } from 'react';
 import axios from 'axios';
-import { AUTH_API_URL } from '../config/api';
+import { AUTH_API_URL, API_HEADERS } from '../config/api';
 
 const AuthContext = createContext();
 
@@ -79,7 +79,7 @@ export function AuthProvider({ children }) {
       const response = await axios.post(`${AUTH_API_URL}/login`, {
         email,
         password
-      });
+      }, { headers: API_HEADERS });
 
       const { user, token } = response.data;
 
@@ -108,7 +108,7 @@ export function AuthProvider({ children }) {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
       
-      const response = await axios.post(`${AUTH_API_URL}/register`, userData);
+      const response = await axios.post(`${AUTH_API_URL}/register`, userData, { headers: API_HEADERS });
       
       const { user, token } = response.data;
 

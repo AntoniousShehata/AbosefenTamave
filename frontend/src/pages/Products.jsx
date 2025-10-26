@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../components/Toast';
-import { PRODUCTS_API_URL } from '../config/api';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 import axios from 'axios';
 
 function Products() {
@@ -17,7 +17,7 @@ function Products() {
   // Get products from API
   useEffect(() => {
     setLoading(true);
-    axios.get(PRODUCTS_API_URL)
+    axios.get(PRODUCTS_API_URL, { headers: API_HEADERS })
       .then(res => {
         const productsData = res.data.products || res.data;
         setProducts(productsData);

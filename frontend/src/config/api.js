@@ -2,8 +2,8 @@
  * Centralized API Configuration
  * 
  * Usage:
- * import { API_URL } from '@/config/api';
- * axios.get(`${API_URL}/products`);
+ * import { API_URL, API_HEADERS } from '@/config/api';
+ * axios.get(`${API_URL}/products`, { headers: API_HEADERS });
  */
 
 // Get base API URL from environment variable
@@ -22,6 +22,11 @@ export const PRODUCTS_API_URL = `${API_URL}/api/products`;
 
 // Categories endpoints
 export const CATEGORIES_API_URL = `${API_URL}/api/categories`;
+
+// Default headers to bypass ngrok browser warning (required for ngrok free tier)
+export const API_HEADERS = {
+  'ngrok-skip-browser-warning': '1'
+};
 
 // Helper function for constructing API URLs
 export const getApiUrl = (path) => {
