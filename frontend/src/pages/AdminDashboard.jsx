@@ -102,17 +102,19 @@ function AdminDashboard() {
                   </svg>
                 </button>
                 
-                <h1 className="ml-4 text-2xl font-semibold text-gray-900">
-                  Abosefen & Tamave Irini - Admin
+                <h1 className="ml-2 sm:ml-4 text-base sm:text-xl lg:text-2xl font-semibold text-gray-900 truncate">
+                  <span className="hidden md:inline">Abosefen & Tamave Irini - Admin</span>
+                  <span className="md:hidden">Admin Panel</span>
                 </h1>
               </div>
               
               <div className="flex items-center">
                 <Link
                   to="/"
-                  className="text-primary hover:text-secondary text-sm font-medium"
+                  className="text-primary hover:text-secondary text-xs sm:text-sm font-medium whitespace-nowrap"
                 >
-                  ← Back to Store
+                  <span className="hidden sm:inline">← Back to Store</span>
+                  <span className="sm:hidden">← Store</span>
                 </Link>
               </div>
             </div>
@@ -121,7 +123,7 @@ function AdminDashboard() {
 
         {/* Page content */}
         <main className="flex-1 overflow-y-auto">
-          <div className="p-6">
+          <div className="p-3 sm:p-4 lg:p-6">
             <Routes>
               <Route path="/" element={<AdminDashboardHome />} />
               <Route path="/products" element={<AdminProducts />} />

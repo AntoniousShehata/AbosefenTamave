@@ -1,6 +1,8 @@
-import { createContext, useReducer, useContext, useEffect } from 'react';
+import { createContext, useReducer, useContext, useEffect, useState } from 'react';
 import { useToast } from '../components/Toast';
 import { useAuth } from './AuthContext';
+import axios from 'axios';
+import { API_URL, API_HEADERS } from '../config/api';
 
 const CartContext = createContext();
 
@@ -116,35 +118,76 @@ function cartReducer(state, action) {
 export function CartProvider({ children }) {
   const [cart, dispatch] = useReducer(cartReducer, initialState);
   const { user, isAuthenticated } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Fetch cart from backend when user logs in
+  const fetchUserCart = async () => {
+    if (!isAuthenticated || !user) return;
+    
+    try {
+      setIsLoading(true);
+      const response = await axios.get(`${API_URL}/api/cart`, { headers: API_HEADERS });
+      
+      if (response.data.success && response.data.cart) {
+        // Load backend cart into state
+        dispatch({ type: 'LOAD_CART', payload: response.data.cart });
+        console.log('✅ Cart loaded from backend:', response.data.totalItems, 'items');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching cart from backend:', error);
+      // Keep using localStorage cart if backend fails
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save cart to backend for logged-in users
+  const saveUserCart = async (cartItems) => {
+    if (!isAuthenticated || !user || isSyncing) return;
+    
+    try {
+      setIsSyncing(true);
+      await axios.post(`${API_URL}/api/cart`, { 
+        cart: cartItems 
+      }, { headers: API_HEADERS });
+      console.log('✅ Cart synced to backend:', cartItems.length, 'items');
+    } catch (error) {
+      console.error('❌ Error saving cart to backend:', error);
+      // Fall back to localStorage if backend fails
+      saveGuestCartToStorage(cartItems);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
 
   // Handle authentication changes for cart
   useEffect(() => {
     if (isAuthenticated && user) {
-      // User logged in - cart continues to use localStorage
-      console.log('User logged in, cart will continue using localStorage');
+      // User logged in - fetch cart from backend
+      console.log('✅ User logged in, fetching cart from backend...');
+      fetchUserCart();
     } else if (!isAuthenticated) {
       // User logged out - cart continues to use localStorage
-      console.log('User logged out, cart continues using localStorage');
+      console.log('ℹ️ User logged out, using localStorage cart');
     }
   }, [isAuthenticated, user]);
 
   // Auto-save cart changes
   useEffect(() => {
+    if (cart.length === 0 && isLoading) {
+      // Skip saving during initial load
+      return;
+    }
+
     if (isAuthenticated && user) {
-      // For now, save to localStorage until cart service is fully implemented
-      // TODO: Implement real backend cart sync when cart service is ready
-      saveGuestCartToStorage(cart);
+      // Save to backend for logged-in users
+      saveUserCart(cart);
     } else {
       // Save to localStorage for guest users
       saveGuestCartToStorage(cart);
     }
   }, [cart, isAuthenticated, user]);
-
-  // Cart now uses localStorage exclusively - no backend sync needed
-
-  // Cart now uses localStorage exclusively
-
-  // Cart uses localStorage exclusively - no backend save needed
 
   // Cart utilities with authentication-aware functionality
   const cartUtils = {
