@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import PaymentForm from '../components/PaymentForm';
 import axios from 'axios';
+import { API_URL, API_HEADERS } from '../config/api';
 
 function Checkout() {
   const { cart, getCartTotals, clearCart, formatPrice } = useCart();
@@ -112,7 +113,7 @@ function Checkout() {
         }
       };
 
-      const response = await axios.post('http://localhost:3005/api/orders', orderData);
+      const response = await axios.post(`${API_URL}/api/orders`, orderData, { headers: API_HEADERS });
       
       if (response.data.orderNumber) {
         setOrderNumber(response.data.orderNumber);

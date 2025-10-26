@@ -7,6 +7,7 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 import axios from 'axios';
+import { API_URL, API_HEADERS } from '../config/api';
 
 // Initialize Stripe (replace with your actual publishable key)
 const stripePromise = loadStripe('pk_test_your_stripe_publishable_key');
@@ -29,10 +30,10 @@ const CheckoutForm = ({ amount, onSuccess, onError, orderData }) => {
 
     try {
       // Create payment intent on the server
-      const { data } = await axios.post('http://localhost:5000/api/payments/create-intent', {
+      const { data } = await axios.post(`${API_URL}/api/payments/create-intent`, {
         amount: amount,
         currency: 'egp'
-      });
+      }, { headers: API_HEADERS });
 
       const cardElement = elements.getElement(CardElement);
 
@@ -61,7 +62,7 @@ const CheckoutForm = ({ amount, onSuccess, onError, orderData }) => {
       } else if (paymentIntent.status === 'succeeded') {
         // Payment successful, create the order
         try {
-          const orderResponse = await axios.post('http://localhost:5000/api/orders', {
+          const orderResponse = await axios.post(`${API_URL}/api/orders`, {
             ...orderData,
             paymentMethod: 'visa',
             paymentId: paymentIntent.id

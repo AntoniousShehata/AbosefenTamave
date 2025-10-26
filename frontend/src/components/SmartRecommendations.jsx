@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../components/Toast';
 import axios from 'axios';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 
 function SmartRecommendations({ 
   productId, 
@@ -53,7 +54,7 @@ function SmartRecommendations({
           endpoint = `/products/${productId}/related?limit=${limit}`;
       }
       
-      const response = await axios.get(`http://localhost:3003${endpoint}`);
+      const response = await axios.get(`${PRODUCTS_API_URL}${endpoint}`, { headers: API_HEADERS });
       
       if (response.data.success) {
         const products = response.data.products || response.data.similarProducts || response.data.frequentlyBoughtTogether || [];
@@ -74,7 +75,7 @@ function SmartRecommendations({
     try {
       setLoading(true);
       const userId = user?.id || 'guest';
-      const response = await axios.get(`http://localhost:3003/products/recommendations/personalized?userId=${userId}&limit=${limit}`);
+      const response = await axios.get(`${PRODUCTS_API_URL}/recommendations/personalized?userId=${userId}&limit=${limit}`, { headers: API_HEADERS });
       
       if (response.data.success) {
         // Handle both possible response formats
@@ -95,7 +96,7 @@ function SmartRecommendations({
   const fetchSmartBundles = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`http://localhost:3003/products/${productId}/bundles?limit=${limit}`);
+      const response = await axios.get(`${PRODUCTS_API_URL}/${productId}/bundles?limit=${limit}`, { headers: API_HEADERS });
       
       if (response.data.success) {
         const bundles = response.data.bundles || [];
@@ -115,10 +116,10 @@ function SmartRecommendations({
   const trackInteraction = async (productId, interactionType) => {
     try {
       const userId = user?.id || 'guest';
-      await axios.post(`http://localhost:3003/products/${productId}/interaction`, {
+      await axios.post(`${PRODUCTS_API_URL}/${productId}/interaction`, {
         userId,
         interactionType
-      });
+      }, { headers: API_HEADERS });
     } catch (error) {
       console.error('❌ Error tracking interaction:', error);
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { CATEGORIES_API_URL, PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 
 function ProductsPage() {
   const [categories, setCategories] = useState([]);
@@ -13,8 +14,8 @@ function ProductsPage() {
       try {
         // Fetch categories and featured products in parallel
         const [categoriesResponse, featuredResponse] = await Promise.all([
-          axios.get('http://localhost:3003/categories'),
-          axios.get('http://localhost:3003/products/featured?limit=8')
+          axios.get(CATEGORIES_API_URL, { headers: API_HEADERS }),
+          axios.get(`${PRODUCTS_API_URL}/featured?limit=8`, { headers: API_HEADERS })
         ]);
 
         if (categoriesResponse.data.success) {

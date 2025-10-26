@@ -4,6 +4,7 @@ import { useCart } from '../context/CartContext';
 import { useToast } from '../components/Toast';
 import SmartRecommendations from '../components/SmartRecommendations';
 import axios from 'axios';
+import { PRODUCTS_API_URL, API_HEADERS } from '../config/api';
 
 function ProductDetails() {
   const { slug } = useParams();
@@ -25,7 +26,7 @@ function ProductDetails() {
     const fetchProductDetails = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:8080/api/products/details/${slug}`);
+        const response = await axios.get(`${PRODUCTS_API_URL}/details/${slug}`, { headers: API_HEADERS });
         
         if (response.data.success) {
           setProduct(response.data.product);
