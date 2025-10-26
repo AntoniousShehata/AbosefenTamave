@@ -51,7 +51,7 @@ services:
     environment:
       - NODE_ENV=production
       - JWT_SECRET=your-very-secure-jwt-secret-key-2024-abosefen
-      - AUTH_SERVICE_URL=http://host.docker.internal:3001
+      - AUTH_SERVICE_URL=http://auth-service:3001
       - PRODUCT_SERVICE_URL=http://product-service:3003
       - FRONTEND_URL=http://localhost:5173
     depends_on:

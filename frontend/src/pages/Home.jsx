@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { CATEGORIES_API_URL, PRODUCTS_API_URL } from '../config/api';
 import SmartRecommendations from '../components/SmartRecommendations';
 import SmartSearch from '../components/SmartSearch';
 
@@ -15,8 +16,8 @@ function Home() {
       try {
         // Fetch categories and featured products in parallel
         const [categoriesResponse, featuredResponse] = await Promise.all([
-          axios.get('http://localhost:8080/api/categories'),
-          axios.get('http://localhost:8080/api/products/featured?limit=6')
+          axios.get(CATEGORIES_API_URL),
+          axios.get(`${PRODUCTS_API_URL}/featured?limit=6`)
         ]);
 
         if (categoriesResponse.data.success) {

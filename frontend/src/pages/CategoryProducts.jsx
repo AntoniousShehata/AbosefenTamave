@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 import { useToast } from '../components/Toast';
+import { PRODUCTS_API_URL } from '../config/api';
 import AdvancedFilters from '../components/AdvancedFilters';
 import { applyFilters, sortProducts } from '../utils/productFilters';
 import axios from 'axios';
@@ -25,7 +26,7 @@ function CategoryProducts() {
     const fetchCategoryProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://localhost:8080/api/products/category/${categoryId}?sortBy=${sortBy}&limit=50`);
+        const response = await axios.get(`${PRODUCTS_API_URL}/category/${categoryId}?sortBy=${sortBy}&limit=50`);
         
         if (response.data.success) {
           setCategory(response.data.category);

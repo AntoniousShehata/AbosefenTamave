@@ -1,3 +1,4 @@
+
 const express = require('express');
 const { createProxyMiddleware } = require('http-proxy-middleware');
 const cors = require('cors');
@@ -10,6 +11,19 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 8080;
+
+// Trust proxy for ngrok and production
+app.set('trust proxy', 1);
+
+// Helper function to restream body for proxy (fixes body parsing issue)
+function restreamBody(proxyReq, req) {
+  if (req.body && Object.keys(req.body).length > 0) {
+    const bodyData = JSON.stringify(req.body);
+    proxyReq.setHeader('Content-Type', 'application/json');
+    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData));
+    proxyReq.write(bodyData);
+  }
+}
 
 // Configuration
 const config = {
@@ -52,7 +66,7 @@ app.use(cors({
 
 app.use(morgan('combined'));
 
-// Critical: Body parsing middleware MUST be before proxy middleware
+// Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -71,11 +85,10 @@ const authLimiter = rateLimit({
   message: 'Too many authentication attempts, please try again later'
 });
 
-// Debug middleware for auth routes
+// Debug middleware for auth routes (minimal - body not parsed yet)
 app.use('/api/auth/*', (req, res, next) => {
   console.log(`🔍 Auth request: ${req.method} ${req.originalUrl}`, {
-    body: req.body,
-    headers: req.headers,
+    contentType: req.headers['content-type'],
     timestamp: new Date().toISOString()
   });
   next();
@@ -182,14 +195,15 @@ app.get('/health/services', async (req, res) => {
 // API Routes - PUBLIC AUTH ENDPOINTS FIRST (specific routes before catch-all)
 
 // Public Authentication Service endpoints
-app.use('/api/auth/register', authLimiter, createProxyMiddleware({ 
+app.use('/api/auth/register', createProxyMiddleware({ 
   target: config.services.auth, 
   changeOrigin: true, 
   pathRewrite: { '^/api/auth': '/auth' },
-  timeout: 30000, // 30 seconds
+  timeout: 30000,
   proxyTimeout: 30000,
   onProxyReq: (proxyReq, req, res) => {
     console.log(`🚀 Proxying REGISTER: ${req.method} ${req.originalUrl} to ${config.services.auth}/auth/register`);
+    restreamBody(proxyReq, req);
   },
   onError: (err, req, res) => {
     console.error('❌ Proxy error (register):', err.message);
@@ -197,14 +211,15 @@ app.use('/api/auth/register', authLimiter, createProxyMiddleware({
   }
 }));
 
-app.use('/api/auth/login', authLimiter, createProxyMiddleware({ 
+app.use('/api/auth/login', createProxyMiddleware({ 
   target: config.services.auth, 
   changeOrigin: true, 
   pathRewrite: { '^/api/auth': '/auth' },
-  timeout: 30000, // 30 seconds
+  timeout: 30000,
   proxyTimeout: 30000,
   onProxyReq: (proxyReq, req, res) => {
     console.log(`🚀 Proxying LOGIN: ${req.method} ${req.originalUrl} to ${config.services.auth}/auth/login`);
+    restreamBody(proxyReq, req);
   },
   onError: (err, req, res) => {
     console.error('❌ Proxy error (login):', err.message);
